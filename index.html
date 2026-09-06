@@ -89,6 +89,17 @@
       padding: 32px; text-align: center;
     }
     .contact-box .email { font-size: 1.3rem; font-weight: 600; }
+    .contact-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+    .btn-wa { background: #25D366; color: #fff; display: inline-flex; align-items: center; gap: 10px; }
+    .btn-wa:hover { background: #1DA851; }
+    .btn-wa svg { width: 20px; height: 20px; }
+    .wa-float {
+      position: fixed; right: 20px; bottom: 20px; width: 56px; height: 56px; border-radius: 50%;
+      background: #25D366; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25); z-index: 20;
+    }
+    .wa-float svg { width: 28px; height: 28px; }
+    .wa-float:hover { background: #1DA851; }
 
     footer { background: var(--navy); padding: 36px 0; color: #c7d2e0; font-size: 0.9rem; }
     footer img { height: 26px; width: auto; display: block; margin-bottom: 14px; }
@@ -212,9 +223,15 @@
       <div class="contact-box">
         <p>Send me a few lines about your business and I'll come back to you within a day.</p>
         <p class="email"><a href="mailto:web@sunnymeadgroup.co.uk">web@sunnymeadgroup.co.uk</a></p>
+        <div class="contact-actions">
+          <a class="btn btn-wa" href="https://wa.me/447936848378?text=Hi%2C%20I%27m%20interested%20in%20a%20website" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L4 21l1.6-4.4A8.5 8.5 0 1 1 21 12z"/><path d="M9.5 9.5c.3 2.4 2.1 4.2 4.5 4.5l1.2-1.2 2 .8v1.7c-3.9.4-8.4-4.1-8-8h1.7l.8 2z"/></svg> Message on WhatsApp</a>
+          <a class="btn" href="tel:+447936848378">Call 07936 848378</a>
+        </div>
       </div>
     </div>
   </section>
+
+  <a class="wa-float" href="https://wa.me/447936848378" target="_blank" rel="noopener" aria-label="Message on WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L4 21l1.6-4.4A8.5 8.5 0 1 1 21 12z"/><path d="M9.5 9.5c.3 2.4 2.1 4.2 4.5 4.5l1.2-1.2 2 .8v1.7c-3.9.4-8.4-4.1-8-8h1.7l.8 2z"/></svg></a>
 
   <footer>
     <div class="wrap">
