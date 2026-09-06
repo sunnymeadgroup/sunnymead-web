@@ -3,22 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>W.C. Owens Plastering | Plasterer in Stockton on Tees and Teesside</title>
-  <meta name="description" content="W.C. Owens Plastering. Skimming, boarding, ceilings, repairs and property maintenance across Stockton on Tees, Teesside and the North East. 10 years experience. Free quotes.">
+  <title>J R Campey Ltd | Natural Ventilation and Louvre Systems, Newcastle upon Tyne</title>
+  <meta name="description" content="J R Campey Limited. Natural air ventilation and louvre systems for commercial, industrial and public buildings. Design, supply, installation and maintenance across the North East and UK.">
 
   <style>
     /* ============================================
        EDIT ME: colours live here.
        ============================================ */
     :root {
-      --ink: #1c1f24;        /* headings, dark sections */
-      --slate: #3b4450;      /* body text */
-      --muted: #6b7480;      /* softer text */
-      --accent: #c8952a;     /* warm gold accent, trowel brass */
-      --accent-dark: #a97a1d;
+      --steel: #14324a;       /* deep steel blue, headings and dark sections */
+      --steel-2: #1f4a6b;
+      --sky: #2f9bd6;         /* accent, airflow blue */
+      --sky-dark: #1f7fb3;
+      --ink: #1f2933;
+      --muted: #5f6b78;
       --paper: #ffffff;
-      --plaster: #f3efe8;    /* light section background, plaster pink-beige */
-      --line: #e3ded6;
+      --mist: #f2f6f9;        /* light section background */
+      --line: #dfe6ec;
     }
 
     * { box-sizing: border-box; }
@@ -26,86 +27,98 @@
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: var(--slate); background: var(--paper); line-height: 1.6;
+      color: var(--ink); background: var(--paper); line-height: 1.6;
     }
-    a { color: var(--accent-dark); }
-    h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; color: var(--ink); }
+    a { color: var(--sky-dark); }
+    h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; color: var(--steel); }
     h1 { font-size: 2.6rem; }
     h2 { font-size: 1.8rem; }
     h3 { font-size: 1.1rem; }
     p { margin: 0 0 1em; }
-    .wrap { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-    section { padding: 64px 0; }
-    .alt { background: var(--plaster); }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+    section { padding: 68px 0; }
+    .alt { background: var(--mist); }
+    .sub { color: var(--muted); max-width: 680px; }
 
     /* Header */
     header { position: sticky; top: 0; z-index: 10; background: var(--paper); border-bottom: 1px solid var(--line); }
-    header .wrap { display: flex; align-items: center; justify-content: space-between; height: 66px; }
-    .brand { text-decoration: none; color: var(--ink); font-weight: 700; font-size: 1.15rem; letter-spacing: 0.3px; }
-    .brand span { color: var(--accent-dark); font-weight: 500; }
-    nav a { margin-left: 20px; text-decoration: none; color: var(--muted); font-size: 0.95rem; }
-    nav a:hover { color: var(--ink); }
+    header .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+    .brand { text-decoration: none; color: var(--steel); font-weight: 800; font-size: 1.2rem; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
+    .brand .mark { width: 30px; height: 30px; }
+    .brand small { display: block; font-weight: 500; font-size: 0.72rem; color: var(--muted); letter-spacing: 1px; line-height: 1; }
+    nav a { margin-left: 22px; text-decoration: none; color: var(--muted); font-size: 0.95rem; }
+    nav a:hover { color: var(--steel); }
 
     /* Buttons */
     .btn {
       display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px; border-radius: 6px;
-      background: var(--accent); color: #fff; font-weight: 600; text-decoration: none; transition: background 0.15s;
+      background: var(--sky); color: #fff; font-weight: 600; text-decoration: none; transition: background 0.15s;
     }
-    .btn:hover { background: var(--accent-dark); color: #fff; }
-    .btn-wa { background: #25D366; }
-    .btn-wa:hover { background: #1DA851; }
-    .btn svg { width: 20px; height: 20px; }
+    .btn:hover { background: var(--sky-dark); color: #fff; }
     .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.6); color: #fff; }
     .btn-outline:hover { background: rgba(255,255,255,0.12); }
 
     /* Hero */
     .hero {
       padding: 110px 0;
-      background: linear-gradient(135deg, #1c1f24 0%, #2d333c 100%);
-      color: #e9ecef;
+      background: linear-gradient(120deg, var(--steel) 0%, var(--steel-2) 100%);
+      color: #dbe6ef; position: relative; overflow: hidden;
     }
+    .hero::after {
+      /* subtle louvre stripes */
+      content: ""; position: absolute; right: -80px; top: 0; bottom: 0; width: 46%;
+      background: repeating-linear-gradient(-20deg, rgba(255,255,255,0.05) 0 14px, transparent 14px 34px);
+      pointer-events: none;
+    }
+    .hero .wrap { position: relative; }
     .hero h1 { color: #fff; }
-    .hero .lead { font-size: 1.2rem; max-width: 600px; color: #c9cfd6; }
+    .hero .lead { font-size: 1.2rem; max-width: 620px; color: #c3d3e0; }
     .hero .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
-    .hero .badge { display: inline-block; background: var(--accent); color: #fff; font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; padding: 4px 10px; border-radius: 4px; margin-bottom: 18px; }
+    .hero .tag { display: inline-block; color: #9fd3f2; font-size: 0.82rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 16px; }
 
     /* Grid */
-    .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
-    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 22px; }
+    .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 24px; }
     .card h3 { margin-bottom: 6px; }
     .card p { margin: 0; color: var(--muted); font-size: 0.97rem; }
+    .card .ic { width: 36px; height: 36px; color: var(--sky); margin-bottom: 12px; }
+
+    /* Sectors */
+    .sectors { display: flex; flex-wrap: wrap; gap: 8px; }
+    .sectors span { background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 7px 15px; font-size: 0.93rem; }
 
     /* Why */
-    .why { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-    .why div { border-left: 4px solid var(--accent); padding-left: 16px; }
-    .why strong { display: block; color: var(--ink); font-size: 1.05rem; margin-bottom: 4px; }
+    .why { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+    .why div { border-left: 4px solid var(--sky); padding-left: 16px; }
+    .why strong { display: block; color: var(--steel); font-size: 1.05rem; margin-bottom: 4px; }
 
-    /* Gallery */
-    .gallery { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+    /* Process */
+    .steps { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .steps .num { display: inline-block; width: 32px; height: 32px; border-radius: 50%; background: var(--steel); color: #fff; font-weight: 700; text-align: center; line-height: 32px; margin-bottom: 10px; }
+
+    /* Projects */
+    .gallery { display: grid; gap: 10px; grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 600px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
     .gallery .ph {
-      aspect-ratio: 1; border-radius: 8px; background: linear-gradient(160deg, #e6e1d8, #d5cfc4);
-      display: flex; align-items: center; justify-content: center; color: #8a8378; font-size: 0.85rem; text-align: center; padding: 10px;
+      aspect-ratio: 4/3; border-radius: 8px; overflow: hidden; position: relative;
+      background: linear-gradient(160deg, #cfd9e2, #9fb0bf);
+      display: flex; align-items: flex-end; padding: 12px; color: #fff; font-size: 0.85rem; font-weight: 600;
     }
-    .gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; display: block; }
-
-    /* Areas */
-    .areas { display: flex; flex-wrap: wrap; gap: 8px; }
-    .areas span { background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 0.92rem; }
+    .gallery .ph::before {
+      content: ""; position: absolute; inset: 0;
+      background: repeating-linear-gradient(0deg, rgba(20,50,74,0.22) 0 10px, transparent 10px 24px);
+    }
+    .gallery .ph span { position: relative; background: rgba(20,50,74,0.75); padding: 4px 10px; border-radius: 4px; }
 
     /* Contact */
-    .contact-box { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 32px; text-align: center; }
-    .contact-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
-    .contact-box .num { font-size: 1.4rem; font-weight: 700; color: var(--ink); margin: 6px 0 0; }
+    .contact { display: grid; gap: 18px; grid-template-columns: 1.1fr 1fr; }
+    .contact-box { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 28px; }
+    .contact-box .big { font-size: 1.35rem; font-weight: 700; color: var(--steel); margin: 4px 0 2px; }
+    .contact-box .lbl { font-size: 0.8rem; letter-spacing: 1.5px; color: var(--muted); font-weight: 700; margin-top: 16px; }
+    @media (max-width: 700px) { .contact { grid-template-columns: 1fr; } }
 
-    .wa-float {
-      position: fixed; right: 20px; bottom: 20px; width: 56px; height: 56px; border-radius: 50%;
-      background: #25D366; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.25); z-index: 20;
-    }
-    .wa-float svg { width: 28px; height: 28px; }
-
-    footer { background: var(--ink); color: #9aa3ad; padding: 32px 0; font-size: 0.9rem; }
-    footer a { color: #c9cfd6; }
+    footer { background: var(--steel); color: #9fb3c4; padding: 32px 0; font-size: 0.9rem; }
+    footer a { color: #cfdde8; }
 
     @media (max-width: 600px) {
       h1 { font-size: 2rem; }
@@ -118,12 +131,15 @@
 
   <header>
     <div class="wrap">
-      <a class="brand" href="#">W.C. Owens <span>Plastering</span></a>
+      <a class="brand" href="#">
+        <svg class="mark" viewBox="0 0 30 30" aria-hidden="true"><rect x="2" y="2" width="26" height="26" rx="4" fill="#14324a"/><g stroke="#2f9bd6" stroke-width="2.6" stroke-linecap="round"><line x1="7" y1="9" x2="23" y2="9"/><line x1="7" y1="15" x2="23" y2="15"/><line x1="7" y1="21" x2="23" y2="21"/></g></svg>
+        <span>J R CAMPEY<small>NATURAL VENTILATION AND LOUVRES</small></span>
+      </a>
       <nav>
         <a href="#services">Services</a>
-        <a href="#work">Recent work</a>
-        <a href="#areas">Areas</a>
-        <a href="#contact">Get a quote</a>
+        <a href="#sectors">Sectors</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
       </nav>
     </div>
   </header>
@@ -131,15 +147,15 @@
   <!-- ===================== HERO ===================== -->
   <section class="hero">
     <div class="wrap">
-      <span class="badge">10 YEARS EXPERIENCE</span>
-      <h1>Smooth walls and ceilings,<br>done properly.</h1>
+      <span class="tag">NEWCASTLE UPON TYNE</span>
+      <h1>Natural ventilation and louvre systems for buildings that need to breathe.</h1>
       <p class="lead">
-        Plastering and property maintenance across Stockton, Teesside and the North East.
-        Clean, tidy work and a finish you can paint straight onto.
+        J R Campey Limited designs, supplies and installs natural air ventilation and louvre systems
+        for commercial, industrial and public buildings across the North East and the UK.
       </p>
       <div class="actions">
-        <a class="btn" href="#contact">Get a free quote</a>
-        <a class="btn btn-outline" href="https://www.instagram.com/wco_plastering/" target="_blank" rel="noopener">See my work on Instagram</a>
+        <a class="btn" href="#contact">Discuss a project</a>
+        <a class="btn btn-outline" href="#services">What we do</a>
       </div>
     </div>
   </section>
@@ -147,90 +163,130 @@
   <!-- ===================== SERVICES ===================== -->
   <section id="services">
     <div class="wrap">
-      <h2>What I do</h2>
-      <p>Domestic plastering for homeowners and landlords, from a single patch to a full house.</p>
+      <h2>What we do</h2>
+      <p class="sub">From a single replacement louvre to a full natural ventilation strategy for a new build. One point of contact from survey to handover.</p>
       <div class="grid">
-        <div class="card"><h3>Skimming</h3><p>Re-skim over old walls and ceilings for a smooth, flat finish ready for paint.</p></div>
-        <div class="card"><h3>Plasterboarding</h3><p>Boarding out new walls, ceilings, stud work and dot and dab.</p></div>
-        <div class="card"><h3>Ceilings</h3><p>Cracked, sagging or Artex ceilings overboarded and skimmed flat.</p></div>
-        <div class="card"><h3>Repairs and patching</h3><p>Damaged plaster, holes from rewires and plumbing, water damage made good.</p></div>
-        <div class="card"><h3>Rendering</h3><p>External render repairs and new render to walls and garden features.</p></div>
-        <div class="card"><h3>Property maintenance</h3><p>General maintenance jobs for landlords and homeowners. Ask and I'll tell you if I can help.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== WHY ===================== -->
-  <section class="alt">
-    <div class="wrap">
-      <h2>Why people use me</h2>
-      <div class="why">
-        <div><strong>10 years on the tools</strong>Time served, not learnt off YouTube.</div>
-        <div><strong>Tidy</strong>Floors covered, dust kept down, rubbish taken away.</div>
-        <div><strong>Straight prices</strong>Quote agreed before I start. No surprises at the end.</div>
-        <div><strong>Turn up when I say</strong>You'll get a date and a time, and I'll be there.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== WORK ===================== -->
-  <section id="work">
-    <div class="wrap">
-      <h2>Recent work</h2>
-      <p>A few recent jobs. More on <a href="https://www.instagram.com/wco_plastering/" target="_blank" rel="noopener">Instagram</a>.</p>
-      <!-- EDIT ME: replace each .ph placeholder with <img src="photos/1.jpg" alt="..."> -->
-      <div class="gallery">
-        <div class="ph">Photo 1<br>skimmed ceiling</div>
-        <div class="ph">Photo 2<br>living room re-skim</div>
-        <div class="ph">Photo 3<br>boarded and skimmed</div>
-        <div class="ph">Photo 4<br>before and after</div>
-        <div class="ph">Photo 5</div>
-        <div class="ph">Photo 6</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== AREAS ===================== -->
-  <section id="areas" class="alt">
-    <div class="wrap">
-      <h2>Areas covered</h2>
-      <p>Based in Stockton on Tees, covering Teesside and the surrounding area. Ask if you're a bit further out.</p>
-      <div class="areas">
-        <span>Stockton on Tees</span><span>Middlesbrough</span><span>Thornaby</span><span>Yarm</span><span>Ingleby Barwick</span>
-        <span>Billingham</span><span>Norton</span><span>Eaglescliffe</span><span>Hartlepool</span><span>Darlington</span>
-        <span>Redcar</span><span>Guisborough</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== CONTACT ===================== -->
-  <section id="contact">
-    <div class="wrap">
-      <h2>Get a free quote</h2>
-      <div class="contact-box">
-        <p>Send a couple of photos of the job and a rough size and I'll give you a price.</p>
-        <!-- EDIT ME: replace 447000000000 with Wes's number in international format (07xxx -> 447xxx) -->
-        <p class="num">07000 000000</p>
-        <div class="contact-actions">
-          <a class="btn btn-wa" href="https://wa.me/447000000000?text=Hi%20Wes%2C%20can%20I%20get%20a%20quote%20for%20some%20plastering%3F" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L4 21l1.6-4.4A8.5 8.5 0 1 1 21 12z"/><path d="M9.5 9.5c.3 2.4 2.1 4.2 4.5 4.5l1.2-1.2 2 .8v1.7c-3.9.4-8.4-4.1-8-8h1.7l.8 2z"/></svg>
-            WhatsApp me
-          </a>
-          <a class="btn" href="tel:+447000000000">Call</a>
-          <a class="btn" style="background:#3b4450" href="https://www.instagram.com/wco_plastering/" target="_blank" rel="noopener">Instagram</a>
+        <div class="card">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 12h16a3 3 0 1 1-3 3"/><path d="M3 16h8a2 2 0 1 1-2 2"/></svg>
+          <h3>Natural ventilation systems</h3>
+          <p>Passive and automated natural ventilation that keeps buildings fresh, cool and comfortable without the running cost of mechanical plant.</p>
+        </div>
+        <div class="card">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="6" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="6" y1="16" x2="18" y2="16"/></svg>
+          <h3>Weather louvres</h3>
+          <p>External louvres that let air in and keep rain out. Standard and high performance profiles, finished to match the building.</p>
+        </div>
+        <div class="card">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 10v4h4l5 4V6L8 10z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M18.5 6.5a8 8 0 0 1 0 11"/></svg>
+          <h3>Acoustic louvres</h3>
+          <p>Ventilation with noise control for plant rooms, generators and screening near homes, offices and schools.</p>
+        </div>
+        <div class="card">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3s6 5 6 11a6 6 0 0 1-12 0c0-6 6-11 6-11z"/><path d="M12 21v-6"/></svg>
+          <h3>Smoke and fire ventilation</h3>
+          <p>Natural smoke ventilators, AOVs and louvred smoke vents to meet building regulations and keep escape routes clear.</p>
+        </div>
+        <div class="card">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M8 5v14M16 5v14"/></svg>
+          <h3>Screening and plant enclosures</h3>
+          <p>Louvred screens and enclosures that hide rooftop plant, bin stores and car park levels while still letting air through.</p>
+        </div>
+        <div class="card">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14.7 6.3a4 4 0 0 0 5 5L14 17l-4 4-3-3 4-4 5.7-5.7z"/><path d="M3 21l3-3"/></svg>
+          <h3>Survey, installation and maintenance</h3>
+          <p>Site surveys, installation by our own team, and planned maintenance or repairs on existing systems whoever supplied them.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <a class="wa-float" href="https://wa.me/447000000000" target="_blank" rel="noopener" aria-label="WhatsApp">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L4 21l1.6-4.4A8.5 8.5 0 1 1 21 12z"/><path d="M9.5 9.5c.3 2.4 2.1 4.2 4.5 4.5l1.2-1.2 2 .8v1.7c-3.9.4-8.4-4.1-8-8h1.7l.8 2z"/></svg>
-  </a>
+  <!-- ===================== SECTORS ===================== -->
+  <section id="sectors" class="alt">
+    <div class="wrap">
+      <h2>Who we work with</h2>
+      <p class="sub">Main contractors, architects, M&amp;E consultants, facilities managers and building owners.</p>
+      <div class="sectors">
+        <span>Schools and universities</span><span>Offices</span><span>Warehouses and industrial units</span>
+        <span>Leisure centres</span><span>Hospitals and care</span><span>Car parks</span><span>Retail</span>
+        <span>Plant rooms and substations</span><span>Residential blocks</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== WHY ===================== -->
+  <section>
+    <div class="wrap">
+      <h2>Why J R Campey</h2>
+      <div class="why">
+        <div><strong>Specialists, not generalists</strong>Ventilation and louvres are all we do, so we get the detail right first time.</div>
+        <div><strong>Design to handover</strong>We can take a drawing, an idea or a problem and turn it into a working system.</div>
+        <div><strong>Own installation team</strong>The people who quote the job are the people who fit it.</div>
+        <div><strong>North East based</strong>Newcastle upon Tyne, so site visits and callouts are quick.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PROCESS ===================== -->
+  <section class="alt">
+    <div class="wrap">
+      <h2>How a project runs</h2>
+      <div class="steps">
+        <div><div class="num">1</div><h3>Talk it through</h3><p class="sub">Send drawings or photos, or ask us out to site.</p></div>
+        <div><div class="num">2</div><h3>Design and quote</h3><p class="sub">Free flow, sizing and a fixed price with lead times.</p></div>
+        <div><div class="num">3</div><h3>Manufacture and install</h3><p class="sub">Made to measure, fitted by our own team.</p></div>
+        <div><div class="num">4</div><h3>Handover and support</h3><p class="sub">O&amp;M information and maintenance if you want it.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PROJECTS ===================== -->
+  <section id="projects">
+    <div class="wrap">
+      <h2>Recent projects</h2>
+      <p class="sub">A selection of recent work. Ask us for references relevant to your sector.</p>
+      <!-- EDIT ME: replace each placeholder with <img src="photos/1.jpg" alt="..."> once John supplies photos -->
+      <div class="gallery">
+        <div class="ph"><span>School natural ventilation</span></div>
+        <div class="ph"><span>Plant room acoustic louvres</span></div>
+        <div class="ph"><span>Car park screening</span></div>
+        <div class="ph"><span>Warehouse roof ventilators</span></div>
+        <div class="ph"><span>Office weather louvres</span></div>
+        <div class="ph"><span>Smoke vent installation</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONTACT ===================== -->
+  <section id="contact" class="alt">
+    <div class="wrap">
+      <h2>Discuss a project</h2>
+      <div class="contact">
+        <div class="contact-box">
+          <p>Send us drawings, photos or just a description of the problem and we'll come back to you with options.</p>
+          <!-- EDIT ME: John's real details -->
+          <div class="lbl">PHONE</div>
+          <p class="big"><a href="tel:+441910000000" style="text-decoration:none;color:inherit">0191 000 0000</a></p>
+          <div class="lbl">EMAIL</div>
+          <p class="big"><a href="mailto:info@jrcampey.co.uk" style="text-decoration:none;color:inherit">info@jrcampey.co.uk</a></p>
+          <a class="btn" href="mailto:info@jrcampey.co.uk?subject=Ventilation%20enquiry">Email us</a>
+        </div>
+        <div class="contact-box">
+          <div class="lbl">COMPANY</div>
+          <p class="big">J R Campey Limited</p>
+          <p class="sub">Natural air ventilation and louvre systems<br>Newcastle upon Tyne, England</p>
+          <div class="lbl">HOURS</div>
+          <p class="sub">Monday to Friday, 8am to 5pm</p>
+          <div class="lbl">COVERAGE</div>
+          <p class="sub">North East based, projects nationwide</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <footer>
     <div class="wrap">
-      W.C. Owens Plastering &middot; Plastering and property maintenance &middot; Stockton on Tees and Teesside<br>
-      <small>Website by <a href="https://sunnymeadgroup.co.uk">Sunnymead Web</a></small>
+      J R Campey Limited &middot; Natural Air Ventilation and Louvre Systems &middot; Newcastle upon Tyne<br>
+      <small>Registered in England and Wales. Website by <a href="https://sunnymeadgroup.co.uk">Sunnymead Web</a></small>
     </div>
   </footer>
 

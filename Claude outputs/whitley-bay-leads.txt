@@ -1,33 +1,43 @@
-WHITLEY BAY AREA – BUSINESSES WITH NO WEBSITE FOUND (6 Sept 2026)
-Found via Facebook, Yell, Cylex, Nextdoor, Fresha etc. "High" = only Facebook/directory listings turned up.
-Check the Facebook page before contacting, some may have added a site since.
+WHITLEY BAY AREA – BUSINESSES WITH NO WEBSITE FOUND (updated 6 Sept 2026)
+Emails: none of these businesses publish an email address anywhere reachable. That's normal for
+Facebook-only micro businesses. Contact route is Facebook Messenger / Instagram DM / phone.
+Facebook pages can't be read automatically, so phones marked "not seen" are probably on the page's About tab.
 
-#  Business                               Type                  Where                              Listed on                 Contact clue                                   Confidence
-1  Watermark Plumbers North Tyneside      Plumber               Whitley Bay                        Facebook, Nextdoor        facebook.com/watermark.plumbers                High
-2  24/6 Electrics                         Electrician           79 Hastings Ave, NE26 4AG          Facebook, Yell            0191 253 4528                                  High
-3  Will.I.am Domestic Electrical          Electrician           2 North Parade, NE26 1PA           Facebook, Yell            07702 702537                                   High
-4  MCH Electrics (NE) Ltd                 Electrician           Whitley Bay                        Facebook, NAPIT           facebook.com/people/MCH-Electrics              Medium
-5  Dan Long Joinery                       Joiner                South Wellfield                    Facebook, Nextdoor        facebook.com/danlongjoinery                    High
-6  David Smith Painter & Decorator        Decorator             Whitley Bay                        Facebook only             facebook.com/p/David-smith-painter-decorator   High
-7  B&R Painting and Decorating            Decorator             Whitley Bay                        Facebook only             facebook.com/barhamandroper                    High
-8  Robert Robson Roofing                  Roofer                Whitley Bay                        Facebook only             facebook.com/p/Robert-Robson-Roofing           High
-9  CT Plastering & Building Maintenance   Plasterer             Whitley Bay                        Facebook, Nextdoor        facebook.com/CTPrendering                      Medium
-10 N T Garden Services Ltd                Gardener              Monkseaton NE25 9AN                Facebook, Buy Local       07802 747841                                   High
-11 Stevie Rob Handyman                    Handyman              Gorsedene Ave, NE26 4AJ            Facebook, MisterWhat      07502 380007                                   High
-12 Andrew Bales Handyman                  Handyman              Whitley Bay                        Facebook only             facebook.com/AndrewBalesHandyman               High
-13 No Job Too Odd                         Handyman / PC repair  Whitley Bay                        Facebook, Nextdoor        facebook.com/NoJobTooOddWhitleyBay             High
-14 Sia Barbers                            Barber                48 Cauldwell Lane, Monkseaton      Facebook, Fresha          facebook.com/p/Sia-barbers                     High
-15 Tonys Barber Shop                      Barber                Whitley Bay                        Facebook, Cylex           facebook.com/tonysbarbershopwhitleybay         High
-16 PK Barbers & Tanning                   Barber                36 Astley Rd, Seaton Delaval       Facebook, Fresha          facebook.com/pkbarbers1                        High
-17 Kelly's Nails & Beauty                 Nails / beauty        230 Whitley Rd, NE26 2TA           Facebook, Instagram, Yell instagram.com/kellysnailswhitleybay            High
-18 Pip & Paw Dog Groomers                 Dog groomer           Whitley Bay                        Facebook, Instagram       instagram.com/pipandpaw                        High
-19 Janet Hunter ADI                       Driving instructor    Whitley Bay                        Facebook only             facebook.com/Janethunter65                     High
-20 The Avenue Cafe & Deli                 Cafe                  Seaton Delaval                     Facebook, Tripadvisor     facebook.com/p/The-Avenue-Café-Deli            High
+#  Business                               Type                  Address                                  Phone                        Email      Listed on
+1  Watermark Plumbers North Tyneside      Plumber               6 Dilston Ave, Whitley Bay NE25 8QG      0191 252 3444                not found  Facebook, Nextdoor
+2  24/6 Electrics                         Electrician           79 Hastings Ave, Whitley Bay NE26 4AG    0191 253 4528                not found  Facebook, Yell
+3  Will.I.am Domestic Electrical          Electrician           2 North Parade, Whitley Bay NE26 1PA     07702 702537                 not found  Facebook, Yell
+4  MCH Electrics (NE) Ltd                 Electrician           Whitley Bay                              not seen                     not found  Facebook, NAPIT
+5  Dan Long Joinery                       Joiner                South Wellfield, Whitley Bay             not seen                     not found  Facebook, Nextdoor
+6  David Smith Painter & Decorator        Decorator             Whitley Bay                              not seen                     not found  Facebook only
+7  B&R Painting and Decorating            Decorator             Whitley Bay                              not seen                     not found  Facebook only
+8  Robert Robson Roofing                  Roofer                Whitley Bay                              not seen                     not found  Facebook only
+9  CT Plastering & Building Maintenance   Plasterer             Whitley Bay                              not seen                     not found  Facebook, Nextdoor
+10 N T Garden Services Ltd                Gardener              40 Hermiston, Monkseaton NE25 9AN        07802 747841 / 0191 297 0438 not found  Facebook, Instagram, Yell
+11 Stevie Rob Handyman                    Handyman              11 Gorsedene Ave, Whitley Bay NE26 4AJ   07502 380007                 not found  Facebook, MisterWhat
+12 Andrew Bales Handyman                  Handyman              Whitley Bay                              not seen                     not found  Facebook only
+13 No Job Too Odd                         Handyman / PC repair  Whitley Bay                              not seen                     not found  Facebook, Nextdoor
+14 Sia Barbers                            Barber                48 Cauldwell Lane, Monkseaton NE25 8LN   07772 107708                 not found  Facebook, Fresha
+15 Tonys Barber Shop                      Barber                8 Esplanade, Whitley Bay NE26 2AG        not seen                     not found  Facebook, Cylex
+16 PK Barbers & Tanning                   Barber                36 Astley Rd, Seaton Delaval NE25 0DG    07752 237567                 not found  Facebook, Fresha
+17 Kelly's Nails & Beauty                 Nails / beauty        230 Whitley Rd, Whitley Bay NE26 2TA     0191 252 8602                not found  Facebook, Instagram, Yell
+18 Pip & Paw Dog Groomers                 Dog groomer           Whitley Lodge, Whitley Bay               not seen                     not found  Facebook, Instagram
+19 Janet Hunter ADI                       Driving instructor    Whitley Bay                              not seen                     not found  Facebook only
+20 The Avenue Cafe & Deli                 Cafe                  85-87 Astley Rd, Seaton Delaval NE25 0DL 07590 220561                 not found  Facebook, Tripadvisor
 
-SPARES (also passed the check)
-Unique Barbers (Whitley Bay), Coast Dog Grooming, Castle Canine Dog Groomer (NE25 8UT), Coastal Garden Services,
-Adam's Driving School, Bell's School of Motoring, Fabulous Nails & Beauty, Sea You There cafe (Cullercoats),
-RS Motor Engineers, Steve Malthouse Painting
+SPARES
+Hastings Plumbing & Heating   Plumber      10 Hastings Ave, Whitley Bay NE26 4AF   0191 253 1356   (Yell lists a dead website, good prospect)
+Sea You There                 Cafe         3 Victoria Cres, Cullercoats NE30 4QR   0191 245 7986
+MS Barbers                    Barber       95 Cauldwell Ln, Monkseaton NE25 8SR    0191 205 1757
+Unique Barbers                Barber       Whitley Bay                             not seen
+Coast Dog Grooming            Dog groomer  Whitley Bay                             not seen
+Castle Canine Dog Groomer     Dog groomer  Whitley Bay NE25 8UT                    not seen
+Coastal Garden Services       Gardener     Whitley Bay                             not seen
+Adam's Driving School         Driving      Whitley Bay                             not seen
+Bell's School of Motoring     Driving      Whitley Bay / North Shields             not seen
+Fabulous Nails & Beauty       Nails        Whitley Bay                             not seen
 
-MAYBE
-Hastings Plumbing & Heating (0191 253 1356): Yell lists hastings-plumbing.co.uk but the domain is dead. Lapsed site = good prospect.
+HOW TO APPROACH
+- Phone listed: ring, or text/WhatsApp the mobile ones with a demo link.
+- No phone: message the Facebook page. Short, friendly, link to a demo. Same template as the Wes message.
+- Barbers and salons on Fresha already take bookings online; the pitch is "be found on Google", not "take bookings".
