@@ -1,0 +1,33 @@
+WHITLEY BAY AREA – BUSINESSES WITH NO WEBSITE FOUND (6 Sept 2026)
+Found via Facebook, Yell, Cylex, Nextdoor, Fresha etc. "High" = only Facebook/directory listings turned up.
+Check the Facebook page before contacting, some may have added a site since.
+
+#  Business                               Type                  Where                              Listed on                 Contact clue                                   Confidence
+1  Watermark Plumbers North Tyneside      Plumber               Whitley Bay                        Facebook, Nextdoor        facebook.com/watermark.plumbers                High
+2  24/6 Electrics                         Electrician           79 Hastings Ave, NE26 4AG          Facebook, Yell            0191 253 4528                                  High
+3  Will.I.am Domestic Electrical          Electrician           2 North Parade, NE26 1PA           Facebook, Yell            07702 702537                                   High
+4  MCH Electrics (NE) Ltd                 Electrician           Whitley Bay                        Facebook, NAPIT           facebook.com/people/MCH-Electrics              Medium
+5  Dan Long Joinery                       Joiner                South Wellfield                    Facebook, Nextdoor        facebook.com/danlongjoinery                    High
+6  David Smith Painter & Decorator        Decorator             Whitley Bay                        Facebook only             facebook.com/p/David-smith-painter-decorator   High
+7  B&R Painting and Decorating            Decorator             Whitley Bay                        Facebook only             facebook.com/barhamandroper                    High
+8  Robert Robson Roofing                  Roofer                Whitley Bay                        Facebook only             facebook.com/p/Robert-Robson-Roofing           High
+9  CT Plastering & Building Maintenance   Plasterer             Whitley Bay                        Facebook, Nextdoor        facebook.com/CTPrendering                      Medium
+10 N T Garden Services Ltd                Gardener              Monkseaton NE25 9AN                Facebook, Buy Local       07802 747841                                   High
+11 Stevie Rob Handyman                    Handyman              Gorsedene Ave, NE26 4AJ            Facebook, MisterWhat      07502 380007                                   High
+12 Andrew Bales Handyman                  Handyman              Whitley Bay                        Facebook only             facebook.com/AndrewBalesHandyman               High
+13 No Job Too Odd                         Handyman / PC repair  Whitley Bay                        Facebook, Nextdoor        facebook.com/NoJobTooOddWhitleyBay             High
+14 Sia Barbers                            Barber                48 Cauldwell Lane, Monkseaton      Facebook, Fresha          facebook.com/p/Sia-barbers                     High
+15 Tonys Barber Shop                      Barber                Whitley Bay                        Facebook, Cylex           facebook.com/tonysbarbershopwhitleybay         High
+16 PK Barbers & Tanning                   Barber                36 Astley Rd, Seaton Delaval       Facebook, Fresha          facebook.com/pkbarbers1                        High
+17 Kelly's Nails & Beauty                 Nails / beauty        230 Whitley Rd, NE26 2TA           Facebook, Instagram, Yell instagram.com/kellysnailswhitleybay            High
+18 Pip & Paw Dog Groomers                 Dog groomer           Whitley Bay                        Facebook, Instagram       instagram.com/pipandpaw                        High
+19 Janet Hunter ADI                       Driving instructor    Whitley Bay                        Facebook only             facebook.com/Janethunter65                     High
+20 The Avenue Cafe & Deli                 Cafe                  Seaton Delaval                     Facebook, Tripadvisor     facebook.com/p/The-Avenue-Café-Deli            High
+
+SPARES (also passed the check)
+Unique Barbers (Whitley Bay), Coast Dog Grooming, Castle Canine Dog Groomer (NE25 8UT), Coastal Garden Services,
+Adam's Driving School, Bell's School of Motoring, Fabulous Nails & Beauty, Sea You There cafe (Cullercoats),
+RS Motor Engineers, Steve Malthouse Painting
+
+MAYBE
+Hastings Plumbing & Heating (0191 253 1356): Yell lists hastings-plumbing.co.uk but the domain is dead. Lapsed site = good prospect.
