@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sunnymead Web — Simple websites for small businesses</title>
+  <meta name="description" content="Affordable, professional websites for small businesses in the North East. £300 to build, £30 a month to look after.">
+
+  <style>
+    /* ============================================
+       EDIT ME: colours and fonts live here.
+       Change a value once and it updates everywhere.
+       ============================================ */
+    :root {
+      --sun: #f2a900;        /* accent – sunrise yellow */
+      --sun-dark: #d18f00;   /* accent on hover */
+      --ink: #1f2933;        /* main text */
+      --muted: #616e7c;      /* softer text */
+      --paper: #ffffff;      /* page background */
+      --cream: #fff8e6;      /* light section background */
+      --line: #e4e7eb;       /* borders */
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.6;
+    }
+    a { color: var(--sun-dark); }
+    h1, h2, h3 { line-height: 1.2; margin: 0 0 0.5em; }
+    h1 { font-size: 2.4rem; }
+    h2 { font-size: 1.8rem; }
+    h3 { font-size: 1.15rem; }
+    p { margin: 0 0 1em; }
+
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+    section { padding: 64px 0; }
+    .alt { background: var(--cream); }
+
+    /* Header */
+    header {
+      border-bottom: 1px solid var(--line);
+      position: sticky; top: 0; background: var(--paper); z-index: 10;
+    }
+    header .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .brand { font-weight: 700; font-size: 1.2rem; text-decoration: none; color: var(--ink); }
+    .brand span { color: var(--sun-dark); }
+    nav a { margin-left: 20px; text-decoration: none; color: var(--muted); font-size: 0.95rem; }
+    nav a:hover { color: var(--ink); }
+
+    /* Buttons */
+    .btn {
+      display: inline-block; padding: 12px 22px; border-radius: 8px;
+      background: var(--sun); color: var(--ink); font-weight: 600;
+      text-decoration: none; transition: background 0.15s;
+    }
+    .btn:hover { background: var(--sun-dark); color: #fff; }
+
+    /* Hero */
+    .hero { padding: 96px 0; }
+    .hero p.lead { font-size: 1.25rem; color: var(--muted); max-width: 620px; }
+
+    /* Grid cards */
+    .grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .card {
+      background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 24px;
+    }
+    .card .num {
+      display: inline-block; width: 32px; height: 32px; border-radius: 50%;
+      background: var(--sun); color: var(--ink); font-weight: 700;
+      text-align: center; line-height: 32px; margin-bottom: 12px;
+    }
+
+    /* Pricing */
+    .price { font-size: 2.6rem; font-weight: 700; margin: 8px 0 0; }
+    .price small { font-size: 1rem; font-weight: 400; color: var(--muted); }
+    .price-card ul { padding-left: 20px; margin: 16px 0 0; }
+    .price-card li { margin-bottom: 6px; }
+
+    /* Contact */
+    .contact-box {
+      background: var(--paper); border: 1px solid var(--line); border-radius: 12px;
+      padding: 32px; text-align: center;
+    }
+    .contact-box .email { font-size: 1.3rem; font-weight: 600; }
+
+    footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 0.9rem; }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.9rem; }
+      nav { display: none; }
+      .hero { padding: 64px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="wrap">
+      <a class="brand" href="#">Sunnymead <span>Web</span></a>
+      <nav>
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero">
+    <div class="wrap">
+      <h1>A proper website for your business.<br>Without the fuss.</h1>
+      <p class="lead">
+        Simple, professional websites for small businesses in Newcastle and the North East.
+        One fixed price to build, one small monthly fee to look after it. No jargon, no surprises.
+      </p>
+      <a class="btn" href="#contact">Get in touch</a>
+    </div>
+  </section>
+
+  <!-- ===================== WHO IT'S FOR ===================== -->
+  <section class="alt">
+    <div class="wrap">
+      <h2>Made for businesses that don't have a website yet</h2>
+      <p>
+        Tradespeople, cafés, salons, DJs, cleaners, consultants — if customers are searching for you and
+        finding nothing, you're losing work. A clean one-page site fixes that.
+      </p>
+      <div class="grid">
+        <div class="card">
+          <h3>Looks professional</h3>
+          <p>Clean design that works on phones, tablets and desktops. Your logo, your colours, your words.</p>
+        </div>
+        <div class="card">
+          <h3>Easy for customers</h3>
+          <p>What you do, where you are, how to reach you — clear in seconds. Click-to-call and a contact form.</p>
+        </div>
+        <div class="card">
+          <h3>Looked after for you</h3>
+          <p>Hosting, your domain name, security and small updates are all included in the monthly fee.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== HOW IT WORKS ===================== -->
+  <section id="how">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="num">1</div>
+          <h3>Quick chat</h3>
+          <p>Tell me about your business — what you do, who your customers are, what you want people to do when they find you.</p>
+        </div>
+        <div class="card">
+          <div class="num">2</div>
+          <h3>First draft in days</h3>
+          <p>I build a first version and send you a link. You tell me what to change.</p>
+        </div>
+        <div class="card">
+          <div class="num">3</div>
+          <h3>Go live</h3>
+          <p>Once you're happy, it goes live on your own web address. Then I keep it running and up to date.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PRICING ===================== -->
+  <section id="pricing" class="alt">
+    <div class="wrap">
+      <h2>Simple pricing</h2>
+      <div class="grid">
+        <div class="card price-card">
+          <h3>Build</h3>
+          <p class="price">£300 <small>one-off</small></p>
+          <ul>
+            <li>One-page professional website</li>
+            <li>Designed around your business</li>
+            <li>Works on all devices</li>
+            <li>Contact form and click-to-call</li>
+            <li>Two rounds of changes included</li>
+          </ul>
+        </div>
+        <div class="card price-card">
+          <h3>Look after</h3>
+          <p class="price">£30 <small>per month</small></p>
+          <ul>
+            <li>Hosting and your domain name</li>
+            <li>Security and backups</li>
+            <li>Small text and photo updates</li>
+            <li>A real person to email when you need something</li>
+            <li>Cancel any time</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONTACT ===================== -->
+  <section id="contact">
+    <div class="wrap">
+      <h2>Get in touch</h2>
+      <div class="contact-box">
+        <p>Send me a few lines about your business and I'll come back to you within a day.</p>
+        <p class="email"><a href="mailto:web@sunnymeadgroup.co.uk">web@sunnymeadgroup.co.uk</a></p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      Sunnymead Web is a trading name of Sunnymead Group Ltd &middot; Newcastle upon Tyne
+    </div>
+  </footer>
+
+</body>
+</html>
