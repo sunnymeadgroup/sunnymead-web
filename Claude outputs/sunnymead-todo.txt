@@ -1,0 +1,48 @@
+SUNNYMEAD GROUP – TO DO
+=======================
+
+DONE (6 Sept 2026)
+- Gmail: sunnymeadgroup@gmail.com (currently locked – phone verification)
+- GitHub: username sunnymeadgroup, primary email murvenwan@gmail.com
+- Cloudflare: account owned by sunnymeadgroup@gmail.com, murvenwan@gmail.com added as Super Admin
+- Domain: sunnymeadgroup.co.uk (Cloudflare Registrar, auto-renew on)
+- Email: web@sunnymeadgroup.co.uk -> forwards to murvenwan@gmail.com
+- Repo: github.com/sunnymeadgroup/sunnymead-web (local: C:\Users\murven\sunnymead-web)
+- Hosting: Cloudflare Pages project "sunnymead-web" -> sunnymeadgroup.co.uk + www
+- giffgaff eSIM = business phone number
+
+
+TO DO – ACCOUNTS
+[ ] Unlock Sunnymead Gmail (retry phone verification tomorrow, use giffgaff number, try on iPhone via 5G)
+[ ] Once unlocked: Cloudflare -> Email Routing -> Destination Addresses -> add sunnymeadgroup@gmail.com -> verify
+[ ] Cloudflare -> Routing rules -> edit "web" -> change destination to sunnymeadgroup@gmail.com
+[ ] Cloudflare -> My Profile -> set a password on the sunnymeadgroup login (so it's not Google-only)
+[ ] GitHub -> Settings -> Password and authentication -> make sure a password is set
+[ ] Save all logins in a password manager (Bitwarden is free)
+[ ] Optional: Cloudflare Email Routing -> add catch-all rule (*) -> same Gmail
+
+TO DO – COMPUTER
+[ ] Home desktop: install GitHub Desktop -> sign in as sunnymeadgroup -> File > Clone > sunnymead-web
+[ ] Move all Sunnymead work to home desktop before first paid client
+[ ] Personal Claude subscription for Sunnymead work (before first paid client)
+[ ] Sign out of Sunnymead GitHub / Cloudflare / Google on the work laptop when done
+
+TO DO – WEBSITE
+[ ] Replace email link with a proper contact form (Formspree free tier)
+[ ] Add 2–3 demo sites to show clients (e.g. SK Events DJ, construction business)
+[ ] Add a logo / photo to the site
+[ ] Later: move Sunnymead Web to web.sunnymeadgroup.co.uk when other ventures exist
+
+TO DO – COMPANY
+[ ] Register Sunnymead Group Ltd (1st Formations Privacy Plus)
+[ ] Open Starling business account
+[ ] Update Cloudflare domain contact: Organisation = Sunnymead Group Ltd, reg type = UK Limited Company (needs company number), address = registered office
+[ ] Bookkeeping: link Starling to FreeAgent (free) or Xero
+[ ] One-page client agreement (price, what's included, who owns the domain, cancel any time)
+[ ] Claim back expenses so far: domain (~£8), giffgaff (~£6)
+[ ] Quick word with manager re side business / using Claude at work
+
+HOW TO UPDATE THE SITE
+1. Edit index.html in C:\Users\murven\sunnymead-web (or ask Claude for a new version)
+2. GitHub Desktop -> Summary -> Commit to main -> Push origin
+3. Live on sunnymeadgroup.co.uk in about a minute

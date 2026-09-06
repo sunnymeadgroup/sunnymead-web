@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sunnymead Web — Simple websites for small businesses</title>
   <meta name="description" content="Affordable, professional websites for small businesses in the North East. £300 to build, £30 a month to look after.">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
 
   <style>
     /* ============================================
@@ -12,12 +13,13 @@
        Change a value once and it updates everywhere.
        ============================================ */
     :root {
-      --sun: #f2a900;        /* accent – sunrise yellow */
-      --sun-dark: #d18f00;   /* accent on hover */
+      --sun: #f28c00;        /* accent – logo orange */
+      --sun-dark: #d97a00;   /* accent on hover */
+      --navy: #0f2a4a;       /* logo navy – headings, footer */
       --ink: #1f2933;        /* main text */
       --muted: #616e7c;      /* softer text */
       --paper: #ffffff;      /* page background */
-      --cream: #fff8e6;      /* light section background */
+      --cream: #f4f7fb;      /* light section background */
       --line: #e4e7eb;       /* borders */
     }
 
@@ -31,7 +33,7 @@
       line-height: 1.6;
     }
     a { color: var(--sun-dark); }
-    h1, h2, h3 { line-height: 1.2; margin: 0 0 0.5em; }
+    h1, h2, h3 { line-height: 1.2; margin: 0 0 0.5em; color: var(--navy); }
     h1 { font-size: 2.4rem; }
     h2 { font-size: 1.8rem; }
     h3 { font-size: 1.15rem; }
@@ -47,15 +49,15 @@
       position: sticky; top: 0; background: var(--paper); z-index: 10;
     }
     header .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
-    .brand { font-weight: 700; font-size: 1.2rem; text-decoration: none; color: var(--ink); }
-    .brand span { color: var(--sun-dark); }
+    .brand { display: flex; align-items: center; }
+    .brand img { height: 30px; width: auto; display: block; }
     nav a { margin-left: 20px; text-decoration: none; color: var(--muted); font-size: 0.95rem; }
     nav a:hover { color: var(--ink); }
 
     /* Buttons */
     .btn {
       display: inline-block; padding: 12px 22px; border-radius: 8px;
-      background: var(--sun); color: var(--ink); font-weight: 600;
+      background: var(--sun); color: #fff; font-weight: 600;
       text-decoration: none; transition: background 0.15s;
     }
     .btn:hover { background: var(--sun-dark); color: #fff; }
@@ -71,7 +73,7 @@
     }
     .card .num {
       display: inline-block; width: 32px; height: 32px; border-radius: 50%;
-      background: var(--sun); color: var(--ink); font-weight: 700;
+      background: var(--navy); color: #fff; font-weight: 700;
       text-align: center; line-height: 32px; margin-bottom: 12px;
     }
 
@@ -88,7 +90,8 @@
     }
     .contact-box .email { font-size: 1.3rem; font-weight: 600; }
 
-    footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 0.9rem; }
+    footer { background: var(--navy); padding: 36px 0; color: #c7d2e0; font-size: 0.9rem; }
+    footer img { height: 26px; width: auto; display: block; margin-bottom: 14px; }
 
     @media (max-width: 600px) {
       h1 { font-size: 1.9rem; }
@@ -101,7 +104,7 @@
 
   <header>
     <div class="wrap">
-      <a class="brand" href="#">Sunnymead <span>Web</span></a>
+      <a class="brand" href="#"><img src="assets/logo.svg" alt="Sunnymead.Web"></a>
       <nav>
         <a href="#how">How it works</a>
         <a href="#pricing">Pricing</a>
@@ -215,6 +218,7 @@
 
   <footer>
     <div class="wrap">
+      <img src="assets/logo-white.svg" alt="Sunnymead.Web">
       Sunnymead Web is a trading name of Sunnymead Group Ltd &middot; Newcastle upon Tyne
     </div>
   </footer>
