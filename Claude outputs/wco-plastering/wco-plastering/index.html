@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>W.C. Owens Plastering | Plasterer in Stockton on Tees and Teesside</title>
+  <meta name="description" content="W.C. Owens Plastering. Skimming, boarding, ceilings, repairs and property maintenance across Stockton on Tees, Teesside and the North East. 10 years experience. Free quotes.">
+
+  <style>
+    /* ============================================
+       EDIT ME: colours live here.
+       ============================================ */
+    :root {
+      --ink: #1c1f24;        /* headings, dark sections */
+      --slate: #3b4450;      /* body text */
+      --muted: #6b7480;      /* softer text */
+      --accent: #c8952a;     /* warm gold accent, trowel brass */
+      --accent-dark: #a97a1d;
+      --paper: #ffffff;
+      --plaster: #f3efe8;    /* light section background, plaster pink-beige */
+      --line: #e3ded6;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--slate); background: var(--paper); line-height: 1.6;
+    }
+    a { color: var(--accent-dark); }
+    h1, h2, h3 { line-height: 1.15; margin: 0 0 0.5em; color: var(--ink); }
+    h1 { font-size: 2.6rem; }
+    h2 { font-size: 1.8rem; }
+    h3 { font-size: 1.1rem; }
+    p { margin: 0 0 1em; }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+    section { padding: 64px 0; }
+    .alt { background: var(--plaster); }
+
+    /* Header */
+    header { position: sticky; top: 0; z-index: 10; background: var(--paper); border-bottom: 1px solid var(--line); }
+    header .wrap { display: flex; align-items: center; justify-content: space-between; height: 66px; }
+    .brand { text-decoration: none; color: var(--ink); font-weight: 700; font-size: 1.15rem; letter-spacing: 0.3px; }
+    .brand span { color: var(--accent-dark); font-weight: 500; }
+    nav a { margin-left: 20px; text-decoration: none; color: var(--muted); font-size: 0.95rem; }
+    nav a:hover { color: var(--ink); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px; border-radius: 6px;
+      background: var(--accent); color: #fff; font-weight: 600; text-decoration: none; transition: background 0.15s;
+    }
+    .btn:hover { background: var(--accent-dark); color: #fff; }
+    .btn-wa { background: #25D366; }
+    .btn-wa:hover { background: #1DA851; }
+    .btn svg { width: 20px; height: 20px; }
+    .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.6); color: #fff; }
+    .btn-outline:hover { background: rgba(255,255,255,0.12); }
+
+    /* Hero */
+    .hero {
+      padding: 110px 0;
+      background: linear-gradient(135deg, #1c1f24 0%, #2d333c 100%);
+      color: #e9ecef;
+    }
+    .hero h1 { color: #fff; }
+    .hero .lead { font-size: 1.2rem; max-width: 600px; color: #c9cfd6; }
+    .hero .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+    .hero .badge { display: inline-block; background: var(--accent); color: #fff; font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; padding: 4px 10px; border-radius: 4px; margin-bottom: 18px; }
+
+    /* Grid */
+    .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 22px; }
+    .card h3 { margin-bottom: 6px; }
+    .card p { margin: 0; color: var(--muted); font-size: 0.97rem; }
+
+    /* Why */
+    .why { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .why div { border-left: 4px solid var(--accent); padding-left: 16px; }
+    .why strong { display: block; color: var(--ink); font-size: 1.05rem; margin-bottom: 4px; }
+
+    /* Gallery */
+    .gallery { display: grid; gap: 10px; grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 600px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
+    .gallery .ph {
+      aspect-ratio: 1; border-radius: 8px; background: linear-gradient(160deg, #e6e1d8, #d5cfc4);
+      display: flex; align-items: center; justify-content: center; color: #8a8378; font-size: 0.85rem; text-align: center; padding: 10px;
+    }
+    .gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; display: block; }
+
+    /* Areas */
+    .areas { display: flex; flex-wrap: wrap; gap: 8px; }
+    .areas span { background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 0.92rem; }
+
+    /* Contact */
+    .contact-box { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 32px; text-align: center; }
+    .contact-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+    .contact-box .num { font-size: 1.4rem; font-weight: 700; color: var(--ink); margin: 6px 0 0; }
+
+    .wa-float {
+      position: fixed; right: 20px; bottom: 20px; width: 56px; height: 56px; border-radius: 50%;
+      background: #25D366; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25); z-index: 20;
+    }
+    .wa-float svg { width: 28px; height: 28px; }
+
+    footer { background: var(--ink); color: #9aa3ad; padding: 32px 0; font-size: 0.9rem; }
+    footer a { color: #c9cfd6; }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2rem; }
+      nav { display: none; }
+      .hero { padding: 72px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="wrap">
+      <a class="brand" href="#">W.C. Owens <span>Plastering</span></a>
+      <nav>
+        <a href="#services">Services</a>
+        <a href="#work">Recent work</a>
+        <a href="#areas">Areas</a>
+        <a href="#contact">Get a quote</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero">
+    <div class="wrap">
+      <span class="badge">10 YEARS EXPERIENCE</span>
+      <h1>Smooth walls and ceilings,<br>done properly.</h1>
+      <p class="lead">
+        Plastering and property maintenance across Stockton, Teesside and the North East.
+        Clean, tidy work and a finish you can paint straight onto.
+      </p>
+      <div class="actions">
+        <a class="btn" href="#contact">Get a free quote</a>
+        <a class="btn btn-outline" href="https://www.instagram.com/wco_plastering/" target="_blank" rel="noopener">See my work on Instagram</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SERVICES ===================== -->
+  <section id="services">
+    <div class="wrap">
+      <h2>What I do</h2>
+      <p>Domestic plastering for homeowners and landlords, from a single patch to a full house.</p>
+      <div class="grid">
+        <div class="card"><h3>Skimming</h3><p>Re-skim over old walls and ceilings for a smooth, flat finish ready for paint.</p></div>
+        <div class="card"><h3>Plasterboarding</h3><p>Boarding out new walls, ceilings, stud work and dot and dab.</p></div>
+        <div class="card"><h3>Ceilings</h3><p>Cracked, sagging or Artex ceilings overboarded and skimmed flat.</p></div>
+        <div class="card"><h3>Repairs and patching</h3><p>Damaged plaster, holes from rewires and plumbing, water damage made good.</p></div>
+        <div class="card"><h3>Rendering</h3><p>External render repairs and new render to walls and garden features.</p></div>
+        <div class="card"><h3>Property maintenance</h3><p>General maintenance jobs for landlords and homeowners. Ask and I'll tell you if I can help.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== WHY ===================== -->
+  <section class="alt">
+    <div class="wrap">
+      <h2>Why people use me</h2>
+      <div class="why">
+        <div><strong>10 years on the tools</strong>Time served, not learnt off YouTube.</div>
+        <div><strong>Tidy</strong>Floors covered, dust kept down, rubbish taken away.</div>
+        <div><strong>Straight prices</strong>Quote agreed before I start. No surprises at the end.</div>
+        <div><strong>Turn up when I say</strong>You'll get a date and a time, and I'll be there.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== WORK ===================== -->
+  <section id="work">
+    <div class="wrap">
+      <h2>Recent work</h2>
+      <p>A few recent jobs. More on <a href="https://www.instagram.com/wco_plastering/" target="_blank" rel="noopener">Instagram</a>.</p>
+      <!-- EDIT ME: photos/1.jpg to 6.jpg are placeholder textures. Swap for Wes's real job photos, same filenames. -->
+      <div class="gallery">
+        <img src="photos/1.jpg" alt="Skimmed ceiling">
+        <img src="photos/2.jpg" alt="Living room re-skim">
+        <img src="photos/3.jpg" alt="Boarded and skimmed">
+        <img src="photos/4.jpg" alt="Patch repair, made good">
+        <img src="photos/5.jpg" alt="Hallway walls">
+        <img src="photos/6.jpg" alt="Kitchen ceiling">
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== AREAS ===================== -->
+  <section id="areas" class="alt">
+    <div class="wrap">
+      <h2>Areas covered</h2>
+      <p>Based in Stockton on Tees, covering Teesside and the surrounding area. Ask if you're a bit further out.</p>
+      <div class="areas">
+        <span>Stockton on Tees</span><span>Middlesbrough</span><span>Thornaby</span><span>Yarm</span><span>Ingleby Barwick</span>
+        <span>Billingham</span><span>Norton</span><span>Eaglescliffe</span><span>Hartlepool</span><span>Darlington</span>
+        <span>Redcar</span><span>Guisborough</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONTACT ===================== -->
+  <section id="contact">
+    <div class="wrap">
+      <h2>Get a free quote</h2>
+      <div class="contact-box">
+        <p>Send a couple of photos of the job and a rough size and I'll give you a price.</p>
+        <!-- EDIT ME: replace 447000000000 with Wes's number in international format (07xxx -> 447xxx) -->
+        <p class="num">07000 000000</p>
+        <div class="contact-actions">
+          <a class="btn btn-wa" href="https://wa.me/447000000000?text=Hi%20Wes%2C%20can%20I%20get%20a%20quote%20for%20some%20plastering%3F" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L4 21l1.6-4.4A8.5 8.5 0 1 1 21 12z"/><path d="M9.5 9.5c.3 2.4 2.1 4.2 4.5 4.5l1.2-1.2 2 .8v1.7c-3.9.4-8.4-4.1-8-8h1.7l.8 2z"/></svg>
+            WhatsApp me
+          </a>
+          <a class="btn" href="tel:+447000000000">Call</a>
+          <a class="btn" style="background:#3b4450" href="https://www.instagram.com/wco_plastering/" target="_blank" rel="noopener">Instagram</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <a class="wa-float" href="https://wa.me/447000000000" target="_blank" rel="noopener" aria-label="WhatsApp">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L4 21l1.6-4.4A8.5 8.5 0 1 1 21 12z"/><path d="M9.5 9.5c.3 2.4 2.1 4.2 4.5 4.5l1.2-1.2 2 .8v1.7c-3.9.4-8.4-4.1-8-8h1.7l.8 2z"/></svg>
+  </a>
+
+  <footer>
+    <div class="wrap">
+      W.C. Owens Plastering &middot; Plastering and property maintenance &middot; Stockton on Tees and Teesside<br>
+      <small>Website by <a href="https://sunnymeadgroup.co.uk">Sunnymead Web</a></small>
+    </div>
+  </footer>
+
+</body>
+</html>
