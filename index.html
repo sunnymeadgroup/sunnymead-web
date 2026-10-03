@@ -102,6 +102,24 @@
     .wa-float svg { width: 28px; height: 28px; }
     .wa-float:hover { background: #1DA851; }
 
+    /* Projects */
+    .project {
+      display: grid; grid-template-columns: 1.2fr 1fr; gap: 0; overflow: hidden;
+      background: var(--paper); border: 1px solid var(--line); border-radius: 12px;
+      text-decoration: none; color: inherit; transition: box-shadow 0.15s, transform 0.15s;
+    }
+    .project:hover { box-shadow: 0 10px 30px rgba(15, 42, 74, 0.12); transform: translateY(-2px); }
+    .project img { width: 100%; height: 100%; object-fit: cover; display: block; border-right: 1px solid var(--line); }
+    .project .info { padding: 28px; display: flex; flex-direction: column; }
+    .project .tag { font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
+    .project ul { padding-left: 20px; margin: 4px 0 18px; }
+    .project li { margin-bottom: 4px; }
+    .project .go { margin-top: auto; font-weight: 600; color: var(--sun-dark); }
+    @media (max-width: 700px) {
+      .project { grid-template-columns: 1fr; }
+      .project img { border-right: 0; border-bottom: 1px solid var(--line); height: auto; }
+    }
+
     footer { background: var(--navy); padding: 36px 0; color: #c7d2e0; font-size: 0.9rem; }
     footer img { height: 26px; width: auto; display: block; margin-bottom: 14px; }
 
@@ -119,6 +137,7 @@
       <a class="brand" href="#"><img src="assets/logo.svg" alt="sunnymead.web"></a>
       <nav>
         <a href="#how">How it works</a>
+        <a href="#projects">Projects</a>
         <a href="#pricing">Pricing</a>
         <a href="#contact">Contact</a>
       </nav>
@@ -186,8 +205,30 @@
     </div>
   </section>
 
+  <!-- ===================== PROJECTS ===================== -->
+  <!-- To add a project: copy one <a class="project"> block and change the link, picture and words. -->
+  <section id="projects" class="alt">
+    <div class="wrap">
+      <h2>Projects</h2>
+      <p>Recent work for local businesses.</p>
+      <a class="project" href="https://carrs-barber.sunnymeadgroup.workers.dev/" target="_blank" rel="noopener">
+        <img src="assets/carrs-barbers.jpg" alt="Carr's Barbers Club website" loading="lazy" width="960" height="600">
+        <div class="info">
+          <p class="tag">Barbers &middot; Jesmond, Newcastle</p>
+          <h3>Carr's Barbers Club</h3>
+          <ul>
+            <li>Online booking with each of the three barbers</li>
+            <li>Customer app for iPhone and Android</li>
+            <li>Barbers' diary with booking alerts</li>
+          </ul>
+          <span class="go">Visit the website &rarr;</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
   <!-- ===================== PRICING ===================== -->
-  <section id="pricing" class="alt">
+  <section id="pricing">
     <div class="wrap">
       <h2>Simple pricing</h2>
       <div class="grid">
@@ -220,7 +261,7 @@
   </section>
 
   <!-- ===================== CONTACT ===================== -->
-  <section id="contact">
+  <section id="contact" class="alt">
     <div class="wrap">
       <h2>Get in touch</h2>
       <div class="contact-box">
