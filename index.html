@@ -82,6 +82,9 @@
     .price small { font-size: 1rem; font-weight: 400; color: var(--muted); }
     .price-card ul { padding-left: 20px; margin: 16px 0 0; }
     .price-card li { margin-bottom: 6px; }
+    .price.monthly { font-size: 1.6rem; margin: 2px 0 0; color: var(--navy); }
+    .price-card.featured { border: 2px solid var(--sun); position: relative; }
+    .price-card .badge { display: inline-block; background: var(--sun); color: #fff; font-size: .78rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px; }
     .price-card .pay { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.95rem; }
 
     /* Contact */
@@ -268,30 +271,36 @@
   <section id="pricing">
     <div class="wrap">
       <h2>Simple pricing</h2>
+      <p>Two packages. Both include hosting, your domain name and a real person to help when you need something.</p>
       <div class="grid">
         <div class="card price-card">
-          <h3>Build</h3>
+          <h3>Simple website</h3>
           <p class="price">£300 <small>to build</small></p>
+          <p class="price monthly">£30 <small>per month</small></p>
           <ul>
             <li>Single page professional website</li>
             <li>Designed around your business</li>
             <li>Works on all devices</li>
-            <li>Contact form and tap to call</li>
+            <li>Tap to call and WhatsApp buttons</li>
             <li>Two rounds of changes included</li>
+            <li>Hosting, domain, security and small updates</li>
           </ul>
-          <p class="pay">Pay £150 to start and £150 when you're happy.</p>
+          <p class="pay">Pay £150 to start and £150 when you're happy. Monthly fee starts when the site goes live, 3 month minimum.</p>
         </div>
-        <div class="card price-card">
-          <h3>Look after</h3>
-          <p class="price">£30 <small>per month</small></p>
+        <div class="card price-card featured">
+          <span class="badge">Most popular for salons and clinics</span>
+          <h3>Website with online booking</h3>
+          <p class="price">£600 <small>to build</small></p>
+          <p class="price monthly">£60 <small>per month</small></p>
           <ul>
-            <li>Hosting and your domain name</li>
-            <li>Security and backups</li>
-            <li>Small text and photo updates</li>
-            <li>A real person to email when you need something</li>
-            <li>Cancel any time</li>
+            <li>Everything in the simple website</li>
+            <li>Customers book and pay a deposit online</li>
+            <li>Live diary so double bookings can't happen</li>
+            <li>Staff logins, booking stats and cancellations</li>
+            <li>Your own app for customers and staff</li>
+            <li>Payments go straight to your own Stripe account</li>
           </ul>
-          <p class="pay">Starts when you're happy with the website. 3 month minimum.</p>
+          <p class="pay">Pay £300 to start and £300 when you're happy. Monthly fee starts when the site goes live, 3 month minimum. Stripe's own card fees (about 1.5% plus 20p per payment) are taken by Stripe, not us.</p>
         </div>
       </div>
     </div>
