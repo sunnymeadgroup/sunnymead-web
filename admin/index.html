@@ -92,6 +92,21 @@
     td.num, th.num { text-align: right; white-space: nowrap; }
     .in { color: var(--good); } .out { color: var(--bad); }
 
+    /* projects table */
+    table.projects { min-width: 1000px; }
+    .inv { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
+    .inv a { font-size: .85rem; white-space: nowrap; }
+    .inv .btn { white-space: nowrap; }
+    table.projects td { vertical-align: middle; }
+    table.projects tbody tr:hover { background: var(--cream); }
+    table.projects .pname b { display: block; color: var(--navy); }
+    table.projects .pname small { color: var(--muted); display: block; }
+    table.projects .pname a { font-size: .85rem; }
+    table.projects th:first-child, table.projects td:first-child { padding-left: 18px; }
+    table.projects th:last-child, table.projects td:last-child { padding-right: 18px; }
+    .paidline { font-size: .82rem; color: var(--muted); display: block; }
+    .acts-cell { white-space: nowrap; text-align: right; }
+
     /* modal */
     dialog { border: 0; border-radius: 14px; padding: 0; width: min(560px, calc(100% - 24px)); color: var(--ink); }
     dialog::backdrop { background: rgba(15,42,74,.45); }
@@ -123,22 +138,26 @@
   <div id="app" style="display:none">
     <nav class="tabs" id="tabs">
       <button class="on" data-tab="overview">Overview</button>
-      <button data-tab="sites">Websites</button>
+      <button data-tab="sites">Projects</button>
       <button data-tab="money">Money</button>
       <button data-tab="renewals">Renewals</button>
+      <button data-tab="settings">Settings</button>
     </nav>
 
     <section data-view="overview">
       <div class="tiles" id="tiles"></div>
       <div class="cols">
-        <div class="panel"><h2>Coming up</h2><p class="muted" style="margin-top:-4px;font-size:.9rem">Renewals and deadlines in the next 60 days</p><div id="ovRenewals"></div></div>
+        <div class="panel"><h2>Coming up</h2><p class="muted" style="margin-top:-4px;font-size:.9rem">Renewals and deadlines in the next month, plus anything overdue</p><div id="ovRenewals"></div></div>
         <div class="panel"><h2>Owed to you</h2><p class="muted" style="margin-top:-4px;font-size:.9rem">Income not marked as paid yet</p><div id="ovOwed"></div></div>
       </div>
     </section>
 
     <section data-view="sites" hidden>
-      <div class="bar"><h1 style="margin:0">Websites</h1><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="checkAll">Check all sites</button><button class="btn" id="addSite">Add website</button></div></div>
-      <div class="sites" id="siteList"></div>
+      <div class="bar"><h1 style="margin:0">Projects</h1><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="checkAll">Check all sites</button><button class="btn" id="addSite">Add project</button></div></div>
+      <div class="panel" style="padding:0"><div class="table-wrap"><table class="projects">
+        <thead><tr><th>Project</th><th>Status</th><th>Build</th><th class="num">Monthly</th><th>Invoices</th><th>Domain renews</th><th>Online</th><th></th></tr></thead>
+        <tbody id="siteList"></tbody>
+      </table></div></div>
     </section>
 
     <section data-view="money" hidden>
@@ -168,6 +187,31 @@
       <p class="muted" style="margin-top:-6px">Domain renewals come from each website. Add anything else here: Companies House, accounts, tax, software subscriptions.</p>
       <div class="panel" id="renewList"></div>
     </section>
+    <section data-view="settings" hidden>
+      <h1>Settings</h1>
+      <p class="muted" style="margin-top:-6px">These details appear on your invoices.</p>
+      <form class="panel" id="bizForm" style="max-width:640px">
+        <div class="grid2">
+          <div><label>Business name</label><input name="name"></div>
+          <div><label>Email</label><input name="email" type="email"></div>
+          <div><label>Phone</label><input name="phone"></div>
+          <div><label>Pay within (days)</label><input name="payDays" type="number" min="0" max="90"></div>
+        </div>
+        <label>Address</label><textarea name="address" rows="2"></textarea>
+        <h3 style="margin-top:18px">Bank details for payment</h3>
+        <div class="grid2">
+          <div><label>Bank</label><input name="bankName" placeholder="Starling"></div>
+          <div><label>Account name</label><input name="accountName"></div>
+          <div><label>Sort code</label><input name="sortCode" placeholder="00 00 00"></div>
+          <div><label>Account number</label><input name="accountNumber"></div>
+        </div>
+        <label>Payment terms shown on build invoices</label><input name="buildTerms">
+        <label>Note at the bottom of every invoice</label><input name="footer" placeholder="Thank you for your business.">
+        <label>Next invoice number</label><input name="nextNumber" type="number" min="1" style="max-width:160px">
+        <p class="err" id="bizMsg"></p>
+        <button class="btn">Save settings</button>
+      </form>
+    </section>
   </div>
 </main>
 
@@ -187,6 +231,7 @@
     <div><label>Client email</label><input name="email" type="email"></div>
     <div><label>Build price (£)</label><input name="build" type="number" step="0.01" min="0"></div>
     <div><label>Monthly fee (£)</label><input name="monthly" type="number" step="0.01" min="0"></div>
+    <div><label>Subscription starts</label><input name="subStart" type="date"></div>
   </div>
   <label class="chk"><input type="checkbox" name="depositPaid"> Deposit paid</label>
   <label class="chk"><input type="checkbox" name="balancePaid"> Balance paid</label>
@@ -252,6 +297,10 @@
     if (n <= 30) return '<span class="chip warn">In ' + n + ' day' + (n === 1 ? '' : 's') + '</span>';
     return '<span class="chip good">In ' + n + ' days</span>';
   }
+  function addDaysISO(d, n) { var x = new Date(d + 'T12:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); }
+  function invoicesFor(id) { return (D.invoices || []).filter(function (i) { return i.site === id; }); }
+  function invPaid(inv) { var l = D.ledger.find(function (x) { return x.id === inv.ledgerId; }); return l ? l.paid : false; }
+  function invLink(inv) { return '<a href="/admin/invoice.html?id=' + inv.id + '" target="_blank">' + inv.number + '</a> <span class="chip ' + (invPaid(inv) ? 'good">Paid' : 'warn">Owed') + '</span>'; }
   function taxYearOf(d) { var y = +d.slice(0, 4); return d >= y + '-04-06' ? y : y - 1; }
   function siteName(id) { var s = D.sites.find(function (x) { return x.id === id; }); return s ? s.name : ''; }
 
@@ -283,11 +332,20 @@
   function renewals() {
     var list = [];
     D.sites.forEach(function (s) { if (s.domainRenews && s.status !== 'ended') list.push({ kind: 'domain', due: s.domainRenews, title: (s.domain || s.name) + ' domain renewal', sub: s.name + (s.registrar ? ', ' + s.registrar : ''), site: s.id }); });
+    // Subscription renewals: the day after the last invoiced 3 months ends
+    D.sites.forEach(function (s) {
+      if (s.status === 'ended' || !(s.monthly > 0)) return;
+      var subs = (D.invoices || []).filter(function (i) { return i.site === s.id && i.kind === 'sub'; }).sort(function (a, b) { return b.periodTo.localeCompare(a.periodTo); });
+      if (!subs.length) return;
+      var next = addDaysISO(subs[0].periodTo, 1);
+      list.push({ kind: 'sub', due: next, title: s.name + ' subscription renewal', sub: 'Next 3 months, ' + gbp(s.monthly * 3) + '. Send the invoice a month before.', site: s.id });
+    });
     D.reminders.forEach(function (r) { if (r.due) list.push({ kind: 'reminder', due: r.due, title: r.title, sub: (r.repeat !== 'none' ? 'Repeats ' + (r.repeat === 'monthly' ? 'monthly' : 'yearly') : 'One off') + (r.notes ? '. ' + r.notes : ''), id: r.id }); });
     return list.sort(function (a, b) { return a.due.localeCompare(b.due); });
   }
   function renewalRow(r) {
-    var acts = r.kind === 'domain' ? '<button class="link" data-edit-site="' + r.site + '">Edit</button>' : '<button class="btn small ghost" data-done="' + r.id + '">Done</button> <button class="link" data-edit-rem="' + r.id + '">Edit</button>';
+    var acts = r.kind === 'sub' ? '<button class="btn small" data-invoice="sub" data-site="' + r.site + '">Create invoice</button>' :
+      r.kind === 'domain' ? '<button class="link" data-edit-site="' + r.site + '">Edit</button>' : '<button class="btn small ghost" data-done="' + r.id + '">Done</button> <button class="link" data-edit-rem="' + r.id + '">Edit</button>';
     return '<div class="row"><div class="main"><b>' + esc(r.title) + '</b><small>' + fmtDate(r.due) + ' &middot; ' + esc(r.sub) + '</small></div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end">' + dueChip(r.due) + acts + '</div></div>';
   }
 
@@ -302,7 +360,7 @@
     var spend = inYear.filter(function (x) { return x.type === 'out'; }).reduce(function (a, x) { return a + x.amount; }, 0);
     var owed = D.ledger.filter(function (x) { return x.type === 'in' && !x.paid; });
     var owedTotal = owed.reduce(function (a, x) { return a + x.amount; }, 0);
-    var rn = renewals(), soon = rn.filter(function (r) { return daysUntil(r.due) <= 60; });
+    var rn = renewals(), soon = rn.filter(function (r) { return daysUntil(r.due) <= 31; });
     var unpaidBuilds = clients.filter(function (s) { return s.build > 0 && s.status !== 'ended' && (!s.depositPaid || !s.balancePaid); });
 
     $('tiles').innerHTML =
@@ -313,34 +371,54 @@
       tile('Owed to you', gbp(owedTotal), owed.length + ' unpaid') +
       tile('Due in 30 days', rn.filter(function (r) { return daysUntil(r.due) <= 30; }).length, 'Renewals and deadlines');
 
-    $('ovRenewals').innerHTML = soon.length ? soon.map(renewalRow).join('') : '<p class="empty">Nothing due in the next 60 days.</p>';
+    $('ovRenewals').innerHTML = soon.length ? soon.map(renewalRow).join('') : '<p class="empty">Nothing due in the next month.</p>';
     $('ovOwed').innerHTML = (owed.length || unpaidBuilds.length)
       ? owed.map(function (x) { return '<div class="row"><div class="main"><b>' + esc(x.description || x.category) + '</b><small>' + fmtDate(x.date) + (x.site ? ' &middot; ' + esc(siteName(x.site)) : '') + '</small></div><div style="display:flex;gap:10px;align-items:center"><b>' + gbp(x.amount) + '</b><button class="btn small ghost" data-paid="' + x.id + '">Mark paid</button></div></div>'; }).join('') +
         unpaidBuilds.map(function (s) { var left = (s.depositPaid ? 0 : s.build / 2) + (s.balancePaid ? 0 : s.build / 2); return '<div class="row"><div class="main"><b>' + esc(s.name) + ' build</b><small>' + (s.depositPaid ? 'Deposit paid, balance to come' : 'Deposit and balance to come') + (s.status === 'demo' ? ' (still a demo)' : '') + '</small></div><div style="display:flex;gap:10px;align-items:center"><b>' + gbp(left) + '</b><button class="link" data-edit-site="' + s.id + '">Edit</button></div></div>'; }).join('')
       : '<p class="empty">Nobody owes you anything.</p>';
 
-    renderSites(); renderMoney();
+    renderSites(); renderMoney(); fillBiz();
     $('renewList').innerHTML = rn.length ? rn.map(renewalRow).join('') : '<p class="empty">No renewals yet. Add domain renewal dates to your websites, or add a reminder.</p>';
   }
   function tile(label, value, sub) { return '<div class="tile"><span>' + label + '</span><b>' + value + '</b><small>' + esc(sub) + '</small></div>'; }
+
+  function invCell(s) {
+    if (s.own) return '';
+    var inv = invoicesFor(s.id), build = inv.find(function (i) { return i.kind === 'build'; });
+    var subs = inv.filter(function (i) { return i.kind === 'sub'; }).sort(function (a, b) { return a.periodFrom.localeCompare(b.periodFrom); });
+    var out = '<div class="inv">';
+    out += build ? '<span>Build: ' + invLink(build) + '</span>' : (s.build > 0 ? '<button class="btn small" data-invoice="build" data-site="' + s.id + '">Invoice 1: Build</button>' : '');
+    if (subs.length) {
+      var last = subs[subs.length - 1];
+      out += '<span>Care: ' + invLink(last) + '</span><small class="muted">Covered to ' + fmtDate(last.periodTo) + (subs.length > 1 ? ', ' + subs.length + ' invoices' : '') + '</small>';
+    } else if (s.monthly > 0) {
+      out += '<button class="btn small ghost" data-invoice="sub" data-site="' + s.id + '">Invoice 2: First 3 months</button>';
+    }
+    return out + '</div>';
+  }
 
   function renderSites() {
     var order = { live: 0, demo: 1, paused: 2, ended: 3 };
     var list = D.sites.slice().sort(function (a, b) { return (a.own - b.own) || (order[a.status] - order[b.status]) || a.name.localeCompare(b.name); });
     $('siteList').innerHTML = list.map(function (s) {
       var c = s.lastCheck;
-      var check = c ? (c.ok ? '<span class="chip good">Up, ' + c.ms + 'ms</span>' : '<span class="chip bad">Down' + (c.status ? ' (' + c.status + ')' : '') + '</span>') + ' <small class="muted">checked ' + new Date(c.at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + '</small>' : '<small class="muted">Not checked yet</small>';
-      var money = s.own ? '' :
-        '<span>Build</span><span>' + gbp(s.build) + ' &middot; ' + (s.depositPaid ? 'deposit paid' : 'deposit due') + ', ' + (s.balancePaid ? 'balance paid' : 'balance due') + '</span>' +
-        '<span>Monthly</span><span>' + gbp(s.monthly) + (s.liveSince ? ' since ' + fmtDate(s.liveSince) : '') + '</span>';
-      var dom = s.domain ? '<span>Domain</span><span>' + esc(s.domain) + (s.domainRenews ? ' &middot; renews ' + fmtDate(s.domainRenews) + ' ' + dueChip(s.domainRenews) : ' &middot; <i>add renewal date</i>') + '</span>' : '';
-      return '<div class="site"><div class="top"><div><h3>' + esc(s.name) + '</h3><small class="muted">' + esc(s.own ? 'Our own site' : s.client) + '</small></div><span class="chip ' + s.status + '">' + s.status[0].toUpperCase() + s.status.slice(1) + '</span></div>' +
-        (s.url ? '<a class="url" href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.url.replace(/^https?:\/\//, '')) + '</a>' : '') +
-        '<div class="kv">' + money + dom + (s.phone || s.email ? '<span>Contact</span><span>' + esc([s.phone, s.email].filter(Boolean).join(', ')) + '</span>' : '') + '</div>' +
-        (s.notes ? '<small class="muted">' + esc(s.notes) + '</small>' : '') +
-        '<div>' + check + '</div>' +
-        '<div class="acts"><button class="btn small ghost" data-check="' + s.id + '">Check it\'s up</button><button class="btn small ghost" data-edit-site="' + s.id + '">Edit</button></div></div>';
-    }).join('') || '<p class="empty">No websites yet.</p>';
+      var online = c ? (c.ok ? '<span class="chip good">Up</span>' : '<span class="chip bad">Down' + (c.status ? ' (' + c.status + ')' : '') + '</span>') +
+        '<span class="paidline">' + new Date(c.at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + '</span>' : '<span class="muted" style="font-size:.85rem">Not checked</span>';
+      var build = s.own ? '<span class="muted">Our own site</span>' :
+        gbp(s.build) + '<span class="paidline">' + (s.depositPaid && s.balancePaid ? 'Paid in full' : s.depositPaid ? 'Deposit paid, balance due' : 'Deposit due') + '</span>';
+      var renew = s.domainRenews ? fmtDate(s.domainRenews) + '<span class="paidline">' + dueChip(s.domainRenews) + '</span>' : (s.domain ? '<span class="muted" style="font-size:.85rem">Add date</span>' : '<span class="muted">None</span>');
+      return '<tr>' +
+        '<td class="pname"><b>' + esc(s.name) + '</b><small>' + esc(s.own ? 'Sunnymead' : s.client) + '</small>' +
+          (s.url ? '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.url.replace(/^https?:\/\//, '').replace(/\/$/, '')) + '</a>' : '') + '</td>' +
+        '<td><span class="chip ' + s.status + '">' + s.status[0].toUpperCase() + s.status.slice(1) + '</span>' + (s.liveSince ? '<span class="paidline">since ' + fmtDate(s.liveSince) + '</span>' : '') + '</td>' +
+        '<td>' + build + '</td>' +
+        '<td class="num">' + (s.own ? '' : gbp(s.monthly)) + '</td>' +
+        '<td>' + invCell(s) + '</td>' +
+        '<td>' + renew + '</td>' +
+        '<td>' + online + '</td>' +
+        '<td class="acts-cell"><button class="btn small ghost" data-check="' + s.id + '">Check</button> <button class="btn small ghost" data-edit-site="' + s.id + '">Edit</button></td>' +
+        '</tr>';
+    }).join('') || '<tr><td colspan="8" class="empty" style="padding:18px">No projects yet.</td></tr>';
   }
 
   function renderMoney() {
@@ -389,7 +467,7 @@
 
   function editSite(id) {
     var s = D.sites.find(function (x) { return x.id === id; }) || { status: 'demo', build: 300, monthly: 30 };
-    fill($('siteForm'), s); $('siteTitle').textContent = id ? 'Edit ' + s.name : 'Add website';
+    fill($('siteForm'), s); $('siteTitle').textContent = id ? 'Edit ' + s.name : 'Add project';
     $('siteDelete').style.visibility = id ? 'visible' : 'hidden'; $('siteDlg').showModal();
   }
   $('addSite').onclick = function () { editSite(null); };
@@ -418,6 +496,19 @@
 
   // ----- actions anywhere on the page -----
   document.addEventListener('click', function (e) {
+    var inv = e.target.closest('[data-invoice]');
+    if (inv) {
+      var site = D.sites.find(function (x) { return x.id === inv.dataset.site; });
+      var label = inv.dataset.invoice === 'build' ? 'the build invoice (' + gbp(site.build) + ')' : 'an invoice for the next 3 months (' + gbp(site.monthly * 3) + ')';
+      if (!confirm('Create ' + label + ' for ' + site.name + '?')) return;
+      var w = window.open('', '_blank');
+      api('invoice', { site: site.id, kind: inv.dataset.invoice }).then(function (r) {
+        if (r.error) { if (w) w.close(); alert(r.error); return; }
+        if (w) w.location = '/admin/invoice.html?id=' + r.id;
+        load();
+      });
+      return;
+    }
     var t = e.target.closest('[data-edit-site],[data-edit-entry],[data-edit-rem],[data-done],[data-paid],[data-check]');
     if (!t) return;
     if (t.dataset.editSite) editSite(t.dataset.editSite);
@@ -447,6 +538,12 @@
     var a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
     a.download = 'sunnymead-' + ty + '-' + String(ty + 1).slice(2) + '.csv'; a.click();
+  };
+
+  function fillBiz() { if (D.business) fill($('bizForm'), D.business); }
+  $('bizForm').onsubmit = function (e) {
+    e.preventDefault();
+    api('business', read(this)).then(function (r) { $('bizMsg').style.color = r.error ? '' : 'var(--good)'; $('bizMsg').textContent = r.error || 'Saved.'; load(); });
   };
 
   load();

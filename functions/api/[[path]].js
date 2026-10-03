@@ -45,13 +45,19 @@ const SEED = () => {
     ],
     ledger: [],
     reminders: [],
+    invoices: [],
+    business: { name: "Sunnymead Web", email: "web@sunnymeadgroup.co.uk", payDays: 14, buildTerms: "£150 deposit to start, £150 when you are happy with the website.", nextNumber: 1 },
     created: today,
   };
 };
 
 async function load(env) {
   const data = await env.DB.get("data", "json");
-  if (data) return data;
+  if (data) {
+    data.invoices = data.invoices || [];
+    data.business = { name: "Sunnymead Web", email: "web@sunnymeadgroup.co.uk", payDays: 14, buildTerms: "£150 deposit to start, £150 when you are happy with the website.", nextNumber: 1, ...(data.business || {}) };
+    return data;
+  }
   const seed = SEED();
   await env.DB.put("data", JSON.stringify(seed));
   return seed;
@@ -71,7 +77,7 @@ function tidy(collection, item) {
       own: !!item.own, build: num(item.build), monthly: num(item.monthly),
       depositPaid: !!item.depositPaid, balancePaid: !!item.balancePaid,
       liveSince: date(item.liveSince), domain: clean(item.domain, 120), registrar: clean(item.registrar, 60),
-      domainRenews: date(item.domainRenews), phone: clean(item.phone, 30), email: clean(item.email, 120),
+      domainRenews: date(item.domainRenews), subStart: date(item.subStart), phone: clean(item.phone, 30), email: clean(item.email, 120),
       repo: clean(item.repo, 120), notes: clean(item.notes, 2000),
       lastCheck: item.lastCheck || null,
     };
@@ -91,6 +97,10 @@ function tidy(collection, item) {
     notes: clean(item.notes, 500),
   };
 }
+
+function addDays(d, n) { const x = new Date(`${d}T12:00:00Z`); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); }
+function addMonths(d, n) { const x = new Date(`${d}T12:00:00Z`); x.setUTCMonth(x.getUTCMonth() + n); return x.toISOString().slice(0, 10); }
+const prettyDate = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 
 function addPeriod(d, repeat) {
   const x = new Date(`${d}T12:00:00Z`);
@@ -173,6 +183,67 @@ export async function onRequest({ request, env, params }) {
     }
     await save(env, data);
     return json({ ok: true, added });
+  }
+
+  // ----- invoices -----
+  // kind "build": invoice 1, the website build.
+  // kind "sub": the next 3 months of the monthly fee (invoice 2 is the first one).
+  if (path === "/invoice" && method === "POST") {
+    const { site: siteId, kind } = await request.json().catch(() => ({}));
+    const data = await load(env);
+    const s = data.sites.find((x) => x.id === siteId);
+    if (!s) return json({ error: "Project not found" }, 404);
+    const today = new Date().toISOString().slice(0, 10);
+    const mine = data.invoices.filter((i) => i.site === s.id);
+    let lines, periodFrom = "", periodTo = "", note = "";
+    if (kind === "build") {
+      if (mine.some((i) => i.kind === "build")) return json({ error: "This project already has a build invoice" }, 409);
+      if (!(s.build > 0)) return json({ error: "Add a build price to this project first" }, 400);
+      lines = [{ desc: `Website design and build: ${s.name}`, amount: s.build }];
+      note = data.business.buildTerms || "";
+    } else if (kind === "sub") {
+      if (!(s.monthly > 0)) return json({ error: "Add a monthly fee to this project first" }, 400);
+      const last = mine.filter((i) => i.kind === "sub").sort((a, b) => b.periodTo.localeCompare(a.periodTo))[0];
+      periodFrom = last ? addDays(last.periodTo, 1) : (s.subStart || s.liveSince || today);
+      periodTo = addDays(addMonths(periodFrom, 3), -1);
+      lines = [{ desc: `Website hosting, care and updates: ${s.name}, ${prettyDate(periodFrom)} to ${prettyDate(periodTo)} (3 months at £${s.monthly} a month)`, amount: Math.round(s.monthly * 3 * 100) / 100 }];
+    } else return json({ error: "Bad invoice type" }, 400);
+    data.business.nextNumber = (data.business.nextNumber || 1);
+    const number = `SW${String(data.business.nextNumber).padStart(4, "0")}`;
+    data.business.nextNumber++;
+    const total = lines.reduce((a, l) => a + l.amount, 0);
+    const id = crypto.randomUUID().slice(0, 8);
+    const ledgerId = crypto.randomUUID().slice(0, 8);
+    const due = addDays(today, Number(data.business.payDays || 14));
+    data.invoices.push({ id, number, site: s.id, kind, date: today, due, lines, total, periodFrom, periodTo, note, ledgerId });
+    data.ledger.push(tidy("ledger", { id: ledgerId, date: today, type: "in", amount: total, category: kind === "build" ? "Build" : "Maintenance", site: s.id, description: `Invoice ${number}: ${kind === "build" ? "website build" : "3 months care"}`, paid: false, ref: `inv-${id}` }));
+    await save(env, data);
+    return json({ ok: true, id, number });
+  }
+
+  if (path === "/invoice-delete" && method === "POST") {
+    const { id } = await request.json().catch(() => ({}));
+    const data = await load(env);
+    const inv = data.invoices.find((i) => i.id === id);
+    if (!inv) return json({ error: "Not found" }, 404);
+    data.invoices = data.invoices.filter((i) => i.id !== id);
+    data.ledger = data.ledger.filter((l) => l.id !== inv.ledgerId);
+    await save(env, data);
+    return json({ ok: true });
+  }
+
+  if (path === "/business" && method === "POST") {
+    const b = await request.json().catch(() => ({}));
+    const data = await load(env);
+    const keep = data.business.nextNumber;
+    data.business = {
+      name: clean(b.name, 100), address: clean(b.address, 300), email: clean(b.email, 120), phone: clean(b.phone, 30),
+      bankName: clean(b.bankName, 60), accountName: clean(b.accountName, 80), sortCode: clean(b.sortCode, 12), accountNumber: clean(b.accountNumber, 12),
+      payDays: Math.min(90, Math.max(0, parseInt(b.payDays, 10) || 14)), buildTerms: clean(b.buildTerms, 300), footer: clean(b.footer, 300),
+      nextNumber: Math.max(1, parseInt(b.nextNumber, 10) || keep || 1),
+    };
+    await save(env, data);
+    return json({ ok: true });
   }
 
   // Check a site is up.

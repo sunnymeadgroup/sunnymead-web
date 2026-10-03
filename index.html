@@ -121,6 +121,20 @@
       .project img { border-right: 0; border-bottom: 1px solid var(--line); height: auto; }
     }
 
+    /* Projects slider */
+    .slider { position: relative; }
+    .track { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; padding-bottom: 4px; }
+    .track::-webkit-scrollbar { display: none; }
+    .track .project { flex: 0 0 100%; scroll-snap-align: start; margin: 0 !important; }
+    .track .project:hover { transform: none; }
+    .slider-nav { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 18px; }
+    .arrow { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); color: var(--navy); font-size: 1.2rem; cursor: pointer; transition: all 0.15s; }
+    .arrow:hover:not(:disabled) { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .arrow:disabled { opacity: 0.35; cursor: default; }
+    .dots { display: flex; gap: 8px; }
+    .dots button { width: 10px; height: 10px; border-radius: 50%; border: 0; padding: 0; background: var(--line); cursor: pointer; }
+    .dots button.on { background: var(--sun); width: 26px; border-radius: 5px; }
+
     footer { background: var(--navy); padding: 36px 0; color: #c7d2e0; font-size: 0.9rem; }
     footer img { height: 26px; width: auto; display: block; margin-bottom: 14px; }
 
@@ -212,6 +226,8 @@
     <div class="wrap">
       <h2>Projects</h2>
       <p>Recent work for local businesses.</p>
+      <div class="slider" id="slider">
+        <div class="track" id="track">
       <a class="project" href="https://carrs-barber.sunnymeadgroup.workers.dev/" target="_blank" rel="noopener">
         <img src="assets/carrs-barbers.jpg" alt="Carr's Barbers Club website" loading="lazy" width="960" height="600">
         <div class="info">
@@ -238,6 +254,13 @@
           <span class="go">Visit the website &rarr;</span>
         </div>
       </a>
+        </div>
+        <div class="slider-nav">
+          <button class="arrow" id="prevP" aria-label="Previous project">&larr;</button>
+          <div class="dots" id="dots"></div>
+          <button class="arrow" id="nextP" aria-label="Next project">&rarr;</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -298,5 +321,29 @@
     </div>
   </footer>
 
+
+  <script>
+    // Projects slider: arrows, dots and swipe
+    (function () {
+      var track = document.getElementById('track'); if (!track) return;
+      var slides = track.querySelectorAll('.project'), dots = document.getElementById('dots');
+      var prev = document.getElementById('prevP'), next = document.getElementById('nextP');
+      if (slides.length < 2) { document.querySelector('.slider-nav').style.display = 'none'; return; }
+      dots.innerHTML = Array.prototype.map.call(slides, function (_, i) { return '<button aria-label="Project ' + (i + 1) + '"></button>'; }).join('');
+      function index() { return Math.round(track.scrollLeft / track.clientWidth); }
+      function go(i) { track.scrollTo({ left: i * (slides[0].offsetWidth + 18), behavior: 'smooth' }); }
+      function update() {
+        var i = Math.min(slides.length - 1, Math.round(track.scrollLeft / (slides[0].offsetWidth + 18)));
+        dots.querySelectorAll('button').forEach(function (d, j) { d.classList.toggle('on', j === i); });
+        prev.disabled = i === 0; next.disabled = i === slides.length - 1;
+      }
+      prev.onclick = function () { go(Math.max(0, Math.round(track.scrollLeft / (slides[0].offsetWidth + 18)) - 1)); };
+      next.onclick = function () { go(Math.min(slides.length - 1, Math.round(track.scrollLeft / (slides[0].offsetWidth + 18)) + 1)); };
+      dots.onclick = function (e) { var b = e.target.closest('button'); if (b) go(Array.prototype.indexOf.call(dots.children, b)); };
+      track.addEventListener('scroll', function () { window.requestAnimationFrame(update); }, { passive: true });
+      window.addEventListener('resize', update);
+      update();
+    })();
+  </script>
 </body>
 </html>
