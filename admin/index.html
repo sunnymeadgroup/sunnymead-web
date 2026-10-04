@@ -174,9 +174,9 @@
     </section>
 
     <section data-view="sites" hidden>
-      <div class="bar"><h1 style="margin:0">Projects</h1><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="checkAll">Check all sites</button><button class="btn" id="addSite">Add project</button></div></div>
+      <div class="bar"><div><h1 style="margin:0">Projects</h1><small class="muted">Oldest first · job numbers stay with each project</small></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="checkAll">Check all sites</button><button class="btn" id="addSite">Add project</button></div></div>
       <div class="panel" style="padding:0"><div class="table-wrap"><table class="projects">
-        <thead><tr><th>Project</th><th>Status</th><th>Build</th><th class="num">Monthly</th><th>Invoices</th><th>Domain renews</th><th>Online</th><th></th></tr></thead>
+        <thead><tr><th>Job number</th><th>Project</th><th>Status</th><th>Build</th><th class="num">Monthly</th><th>Invoices</th><th>Domain renews</th><th>Online</th><th></th></tr></thead>
         <tbody id="siteList"></tbody>
       </table></div></div>
     </section>
@@ -608,8 +608,7 @@
   }
 
   function renderSites() {
-    var order = { live: 0, demo: 1, paused: 2, ended: 3 };
-    var list = D.sites.slice().sort(function (a, b) { return (a.own - b.own) || (order[a.status] - order[b.status]) || a.name.localeCompare(b.name); });
+    var list = D.sites.slice().sort(function (a, b) { return (a.jobNumber || 0) - (b.jobNumber || 0); });
     $('siteList').innerHTML = list.map(function (s) {
       var c = s.lastCheck;
       var online = c ? (c.ok ? '<span class="chip good">Up</span>' : '<span class="chip bad">Down' + (c.status ? ' (' + c.status + ')' : '') + '</span>') +
@@ -618,6 +617,7 @@
         gbp(s.build) + '<span class="paidline">' + (s.depositPaid && s.balancePaid ? 'Paid in full' : s.depositPaid ? 'Deposit paid, balance due' : 'Deposit due') + '</span>';
       var renew = s.domainRenews ? fmtDate(s.domainRenews) + '<span class="paidline">' + dueChip(s.domainRenews) + '</span>' : (s.domain ? '<span class="muted" style="font-size:.85rem">Add date</span>' : '<span class="muted">None</span>');
       return '<tr>' +
+        '<td><b>' + esc('JOB-' + String(s.jobNumber || '').padStart(4, '0')) + '</b><small class="paidline">' + (s.createdAt ? 'Created ' + fmtDate(s.createdAt.slice(0, 10)) : 'Date not recorded') + '</small></td>' +
         '<td class="pname"><b>' + esc(s.name) + '</b><small>' + esc(s.own ? 'Sunnymead' : s.client) + '</small>' +
           (s.url ? '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.url.replace(/^https?:\/\//, '').replace(/\/$/, '')) + '</a>' : '') + '</td>' +
         '<td><span class="chip ' + s.status + '">' + s.status[0].toUpperCase() + s.status.slice(1) + '</span>' + (s.liveSince ? '<span class="paidline">since ' + fmtDate(s.liveSince) + '</span>' : '') + '</td>' +
@@ -628,7 +628,7 @@
         '<td>' + online + '</td>' +
         '<td class="acts-cell"><button class="btn small ghost" data-check="' + s.id + '">Check</button> <button class="btn small ghost" data-edit-site="' + s.id + '">Edit</button></td>' +
         '</tr>';
-    }).join('') || '<tr><td colspan="8" class="empty" style="padding:18px">No projects yet.</td></tr>';
+    }).join('') || '<tr><td colspan="9" class="empty" style="padding:18px">No projects yet.</td></tr>';
   }
 
   function renderMoney() {
