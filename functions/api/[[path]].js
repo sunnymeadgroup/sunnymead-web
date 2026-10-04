@@ -424,6 +424,8 @@ export async function onRequest({ request, env, params }) {
     const data = await load(env);
     const inv = data.invoices.find((i) => i.id === id);
     if (!inv) return json({ error: "Not found" }, 404);
+    const payment = data.ledger.find((l) => l.id === inv.ledgerId);
+    if (payment && (payment.paid || payment.reconciled)) return json({ error: "A paid or statement-matched invoice cannot be undone. Review its payment record first." }, 409);
     data.invoices = data.invoices.filter((i) => i.id !== id);
     data.ledger = data.ledger.filter((l) => l.id !== inv.ledgerId);
     await save(env, data);
