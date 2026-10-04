@@ -139,6 +139,8 @@
     .dots button.on { background: var(--sun); width: 26px; border-radius: 5px; }
 
     footer { background: var(--navy); padding: 36px 0; color: #c7d2e0; font-size: 0.9rem; }
+    footer .admin-link { display: inline-block; margin-top: 18px; padding: 4px 0; color: #a8b8cc; font-size: 0.75rem; text-decoration: none; }
+    footer .admin-link:hover, footer .admin-link:focus-visible { color: #fff; text-decoration: underline; }
     footer img { height: 26px; width: auto; display: block; margin-bottom: 14px; }
 
     @media (max-width: 600px) {
@@ -327,6 +329,7 @@
     <div class="wrap">
       <img src="assets/logo-white.svg" alt="sunnymead.web">
       Sunnymead Web is a trading name of Sunnymead Group Ltd &middot; Newcastle upon Tyne
+      <div><a class="admin-link" href="/admin/">Admin</a></div>
     </div>
   </footer>
 
