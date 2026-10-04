@@ -409,7 +409,7 @@
     var invoices = (D.invoices || []).filter(function (inv) { return (!$('periodFrom').value || inv.date >= $('periodFrom').value) && (!$('periodTo').value || inv.date <= $('periodTo').value); });
     $('invoiceList').innerHTML = invoices.slice().sort(function (a, b) { return b.date.localeCompare(a.date); }).map(function (inv) {
       var paid = invPaid(inv), customer = inv.customer || siteName(inv.site), overdue = !paid && inv.due < TODAY;
-      return '<tr><td><a href="' + invoiceUrl(inv) + '" target="_blank" rel="noopener">' + esc(inv.number) + '</a><small class="paidline">' + esc(inv._ventureName || D.venture.name) + '</small></td><td>' + esc(customer) + '</td><td>' + fmtDate(inv.date) + '</td><td>' + fmtDate(inv.due) + '</td><td class="num">' + gbp(inv.total) + '</td><td><span class="chip ' + (paid ? 'good' : overdue ? 'bad' : 'warn') + '">' + (paid ? 'Paid' : overdue ? 'Overdue' : 'Unpaid') + '</span></td><td>' + (!paid && activeVenture !== 'company' ? '<button class="link" data-paid="' + esc(inv.ledgerId) + '">Mark paid</button>' : '') + '</td></tr>';
+      return '<tr><td><a href="' + invoiceUrl(inv) + '" target="_blank" rel="noopener">' + esc(inv.number) + '</a><small class="paidline">' + esc(inv._ventureName || D.venture.name) + '</small></td><td>' + esc(customer) + '</td><td>' + fmtDate(inv.date) + '</td><td>' + fmtDate(inv.due) + '</td><td class="num">' + gbp(inv.total) + '</td><td><span class="chip ' + (paid ? 'good' : overdue ? 'bad' : 'warn') + '">' + (paid ? 'Paid' : overdue ? 'Overdue' : 'Unpaid') + '</span></td><td>' + (!paid && activeVenture !== 'company' ? '<button class="link" data-paid="' + esc(inv.ledgerId) + '">Mark paid</button> <button class="link" style="margin-left:12px;color:var(--bad)" data-undo-invoice="' + esc(inv.id) + '">Undo invoice</button>' : '') + '</td></tr>';
     }).join('') || '<tr><td colspan="7" class="empty">No invoices in this period.</td></tr>';
     var report = [
       ['Trading income recorded (gross)', t.sales], ['Trading expenses recorded (gross)', t.costs],
@@ -703,6 +703,18 @@
 
   // ----- actions anywhere on the page -----
   document.addEventListener('click', function (e) {
+    var undo = e.target.closest('[data-undo-invoice]');
+    if (undo) {
+      var invoice = D.invoices.find(function (i) { return i.id === undo.dataset.undoInvoice; });
+      if (!invoice || activeVenture === 'company') return;
+      if (!confirm('Undo invoice ' + invoice.number + ' (' + gbp(invoice.total) + ')? This removes the invoice and its linked unpaid income entry. Its removal stays in Record history.')) return;
+      undo.disabled = true;
+      api('invoice-delete', { id: invoice.id }).then(function (r) {
+        if (r.error) { alert(r.error); return; }
+        return load();
+      }).catch(function () { alert('Could not undo the invoice. Refresh the page and try again.'); }).finally(function () { undo.disabled = false; });
+      return;
+    }
     var inv = e.target.closest('[data-invoice]');
     if (inv) {
       var site = D.sites.find(function (x) { return x.id === inv.dataset.site; });
