@@ -155,7 +155,7 @@
 
   <div id="app" style="display:none">
     <div class="bar workspace-head">
-      <div><p class="eyebrow">SUNNYMEAD GROUP · BOOKKEEPING</p><h1 id="ventureHeading">Sunnymead Web</h1><p class="muted" id="ventureSubtitle">Income, expenses and invoices</p></div>
+      <div><p class="eyebrow">SUNNYMEAD GROUP · BOOKKEEPING</p><h1 id="ventureHeading">Sunnymead Web</h1><p class="muted" id="ventureSubtitle">Income, expenses and invoices</p><p id="murvsWebsite" hidden><a href="https://murvs.sunnymeadgroup.co.uk/" target="_blank" rel="noopener noreferrer">Visit Murv’s Bar website ↗</a></p></div>
       <div class="workspace-actions"><div><label for="ventureSelect">Trading name</label><select id="ventureSelect"></select></div><button class="btn ghost" id="addVenture">Add trading name</button><button class="btn ghost" id="companySettings">Company details</button></div>
     </div>
     <div class="panel period-bar"><div><label for="periodFrom">From</label><input id="periodFrom" type="date"></div><div><label for="periodTo">To</label><input id="periodTo" type="date"></div><button class="btn ghost" id="thisYear">This calendar year</button><button class="btn ghost" id="financialYear">This financial year</button><span class="muted">Reports use entry dates. Payment totals include only entries marked paid.</span></div>
@@ -397,6 +397,7 @@
     $('ventureSelect').innerHTML = '<option value="company">All trading names · company view</option>' + ventures.map(function (v) { return '<option value="' + esc(v.id) + '">' + esc(v.name) + (v.status === 'planned' ? ' · Planned' : '') + '</option>'; }).join('');
     $('ventureSelect').value = activeVenture;
     $('ventureHeading').textContent = activeVenture === 'company' ? company.name : D.venture.name;
+    $('murvsWebsite').hidden = activeVenture === 'company' || !/^murv[’']?s\s+bar$/i.test(D.venture.name.trim());
     $('ventureSubtitle').textContent = activeVenture === 'company' ? 'Combined bookkeeping across all trading names' : 'A trading name of ' + company.name + (D.venture.status === 'planned' ? ' · Planned venture' : '');
     var web = activeVenture !== 'company' && D.venture.kind === 'web';
     document.querySelector('[data-tab="sites"]').hidden = !web;
