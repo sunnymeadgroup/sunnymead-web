@@ -49,6 +49,7 @@
   <div class="bar">
     <a class="btn ghost" href="/admin/">Back to admin</a>
     <span style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn ghost" id="undoBtn" style="display:none">Undo invoice</button>
       <button class="btn ghost" id="paidBtn" style="display:none">Mark as paid</button>
       <button class="btn" onclick="window.print()">Print or save as PDF</button>
     </span>
@@ -89,6 +90,18 @@
         (inv.note ? '<p class="note"><b>Payment terms:</b> ' + esc(inv.note) + '</p>' : '') +
         bank +
         '<p class="note">' + esc(b.footer || 'Thank you for your business.') + '</p>';
+      var undo = document.getElementById('undoBtn');
+      undo.style.display = paid || led.reconciled ? 'none' : '';
+      undo.onclick = function () {
+        if (!confirm('Undo invoice ' + inv.number + ' (' + gbp(inv.total) + ')? This removes the invoice and its linked unpaid income entry. Its removal stays in Record history.')) return;
+        undo.disabled = true;
+        fetch('/api/invoice-delete?venture=' + encodeURIComponent(venture), { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: inv.id }) })
+          .then(function (r) { return r.json(); }).then(function (r) {
+            if (r.error) { alert(r.error); return; }
+            document.getElementById('sheet').textContent = 'Invoice undone. Its unpaid income entry has also been removed.';
+            undo.style.display = 'none'; document.getElementById('paidBtn').style.display = 'none';
+          }).catch(function () { alert('Could not undo the invoice. Refresh the page and try again.'); }).finally(function () { undo.disabled = false; });
+      };
       var pb = document.getElementById('paidBtn');
       pb.style.display = paid ? 'none' : '';
       pb.onclick = function () {
