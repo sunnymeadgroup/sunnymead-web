@@ -95,6 +95,12 @@
 
     /* projects table */
     table.projects { min-width: 1000px; }
+    .project-sort { font:inherit; font-weight:600; color:inherit; padding:6px 0; background:none; border:0; cursor:pointer; white-space:nowrap; }
+    .project-sort:hover { color:var(--navy); }
+    .project-sort:focus-visible { outline:2px solid var(--sun); outline-offset:3px; border-radius:3px; }
+    th[aria-sort="ascending"] .project-sort, th[aria-sort="descending"] .project-sort { color:var(--navy); }
+    .project-sort span { display:inline-block; min-width:12px; margin-left:3px; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
     .inv { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
     .inv a { font-size: .85rem; white-space: nowrap; }
     .inv .btn { white-space: nowrap; }
@@ -174,9 +180,9 @@
     </section>
 
     <section data-view="sites" hidden>
-      <div class="bar"><div><h1 style="margin:0">Projects</h1><small class="muted">Oldest first · job numbers stay with each project</small></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="checkAll">Check all sites</button><button class="btn" id="addSite">Add project</button></div></div>
-      <div class="panel" style="padding:0"><div class="table-wrap"><table class="projects">
-        <thead><tr><th>Job number</th><th>Project</th><th>Status</th><th>Build</th><th class="num">Monthly</th><th>Invoices</th><th>Domain renews</th><th>Online</th><th></th></tr></thead>
+      <div class="bar"><div><h1 style="margin:0">Projects</h1><small class="muted">Click a column heading to sort · click again to reverse</small></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="checkAll">Check all sites</button><button class="btn" id="addSite">Add project</button></div></div>
+      <div class="panel" style="padding:0"><div class="table-wrap"><table class="projects" id="projectsTable">
+        <thead><tr><th scope="col" aria-sort="ascending"><button type="button" class="project-sort" data-project-sort="jobNumber">Job number <span aria-hidden="true">↑</span></button></th><th scope="col" aria-sort="none"><button type="button" class="project-sort" data-project-sort="name">Project <span aria-hidden="true">↕</span></button></th><th scope="col" aria-sort="none"><button type="button" class="project-sort" data-project-sort="status">Status <span aria-hidden="true">↕</span></button></th><th scope="col" aria-sort="none"><button type="button" class="project-sort" data-project-sort="build">Build <span aria-hidden="true">↕</span></button></th><th scope="col" class="num" aria-sort="none"><button type="button" class="project-sort" data-project-sort="monthly">Monthly <span aria-hidden="true">↕</span></button></th><th scope="col" aria-sort="none"><button type="button" class="project-sort" data-project-sort="invoices">Invoices <span aria-hidden="true">↕</span></button></th><th scope="col" aria-sort="none"><button type="button" class="project-sort" data-project-sort="domainRenews">Domain renews <span aria-hidden="true">↕</span></button></th><th scope="col" aria-sort="none"><button type="button" class="project-sort" data-project-sort="online">Online <span aria-hidden="true">↕</span></button></th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
         <tbody id="siteList"></tbody>
       </table></div></div>
     </section>
@@ -607,8 +613,42 @@
     return out + '</div>';
   }
 
+  var projectSort = { key: 'jobNumber', direction: 'asc' };
+  var projectSortKeys = ['jobNumber', 'name', 'status', 'build', 'monthly', 'invoices', 'domainRenews', 'online'];
+  try {
+    var savedProjectSort = JSON.parse(localStorage.getItem('sm-project-sort') || 'null');
+    if (savedProjectSort && projectSortKeys.includes(savedProjectSort.key) && ['asc', 'desc'].includes(savedProjectSort.direction)) projectSort = savedProjectSort;
+  } catch (e) {}
+  var projectCollator = new Intl.Collator('en-GB', { numeric: true, sensitivity: 'base' });
+  function projectSortValue(site) {
+    if (projectSort.key === 'invoices') return (D.invoices || []).filter(function (inv) { return inv.site === site.id; }).length;
+    if (projectSort.key === 'online') return site.lastCheck ? (site.lastCheck.ok ? 1 : 0) : null;
+    if (['build', 'monthly'].includes(projectSort.key)) return site.own ? null : Number(site[projectSort.key] || 0);
+    return site[projectSort.key] == null || site[projectSort.key] === '' ? null : site[projectSort.key];
+  }
+  function compareProjects(a, b) {
+    var av = projectSortValue(a), bv = projectSortValue(b);
+    // Keep missing prices, renewal dates and uptime checks last in both directions.
+    if (av === null && bv !== null) return 1;
+    if (bv === null && av !== null) return -1;
+    var result = av === null ? 0 : typeof av === 'number' && typeof bv === 'number' ? av - bv : projectCollator.compare(String(av), String(bv));
+    return result ? result * (projectSort.direction === 'asc' ? 1 : -1) : (a.jobNumber || 0) - (b.jobNumber || 0);
+  }
+  $('projectsTable').querySelector('thead').onclick = function (event) {
+    var button = event.target.closest('[data-project-sort]');
+    if (!button) return;
+    var key = button.dataset.projectSort;
+    projectSort = { key: key, direction: projectSort.key === key && projectSort.direction === 'asc' ? 'desc' : 'asc' };
+    try { localStorage.setItem('sm-project-sort', JSON.stringify(projectSort)); } catch (e) {}
+    renderSites();
+  };
   function renderSites() {
-    var list = D.sites.slice().sort(function (a, b) { return (a.jobNumber || 0) - (b.jobNumber || 0); });
+    $('projectsTable').querySelectorAll('[data-project-sort]').forEach(function (button) {
+      var active = button.dataset.projectSort === projectSort.key;
+      button.closest('th').setAttribute('aria-sort', active ? (projectSort.direction === 'asc' ? 'ascending' : 'descending') : 'none');
+      button.querySelector('span').textContent = active ? (projectSort.direction === 'asc' ? '↑' : '↓') : '↕';
+    });
+    var list = D.sites.slice().sort(compareProjects);
     $('siteList').innerHTML = list.map(function (s) {
       var c = s.lastCheck;
       var online = c ? (c.ok ? '<span class="chip good">Up</span>' : '<span class="chip bad">Down' + (c.status ? ' (' + c.status + ')' : '') + '</span>') +
