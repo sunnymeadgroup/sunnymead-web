@@ -114,17 +114,46 @@ const SEED = () => {
   };
 };
 
+// Existing array order reflects insertion order; do not invent historical dates.
+function normaliseProjectJobs(data) {
+  data.sites = data.sites || [];
+  let changed = false;
+  const used = new Set();
+  let next = Math.max(1, Number.isSafeInteger(data.nextJobNumber) ? data.nextJobNumber : 1,
+    ...data.sites.map((s) => Number.isSafeInteger(s.jobNumber) && s.jobNumber > 0 ? s.jobNumber + 1 : 1));
+  for (const site of data.sites) {
+    if (!Number.isSafeInteger(site.jobNumber) || site.jobNumber < 1 || used.has(site.jobNumber)) {
+      // Initial numbering follows the saved project order.
+      const initialMigration = !data.sites.some((s) => Number.isSafeInteger(s.jobNumber) && s.jobNumber > 0);
+      if (initialMigration) next = 1;
+      site.jobNumber = next++;
+      changed = true;
+    }
+    used.add(site.jobNumber);
+    if (!site.createdAt) {
+      const creation = (data.audit || []).filter((event) => (event.changes || []).some((change) => change.collection === "sites" && change.id === site.id && !change.before && change.after))
+        .map((event) => event.at).filter((at) => Number.isFinite(Date.parse(at))).sort()[0];
+      if (creation) { site.createdAt = creation; changed = true; }
+    }
+  }
+  if (data.nextJobNumber !== next) { data.nextJobNumber = next; changed = true; }
+  return changed;
+}
+
 async function load(env) {
   const data = await env.DB.get("data", "json");
   if (data) {
     data.invoices = data.invoices || [];
     data.audit = data.audit || [];
     data.business = { name: "Sunnymead Web", email: "web@sunnymeadgroup.co.uk", payDays: 14, buildTerms: "£150 deposit to start, £150 when you are happy with the website.", nextNumber: 1, ...(data.business || {}) };
+    if (normaliseProjectJobs(data)) await env.DB.put("data", JSON.stringify(data));
     return data;
   }
   const seed = env.VENTURE && env.VENTURE.id !== "sunnymead-web"
     ? { sites: [], ledger: [], reminders: [], invoices: [], business: { name: env.VENTURE.name, email: "", legalName: "Sunnymead Group Ltd", payDays: 14, nextNumber: 1, invoicePrefix: env.VENTURE.prefix, buildTerms: "" }, created: new Date().toISOString().slice(0, 10) }
     : SEED();
+  seed.sites.forEach((site) => { site.createdAt = new Date().toISOString(); });
+  normaliseProjectJobs(seed);
   await env.DB.put("data", JSON.stringify(seed));
   return seed;
 }
@@ -349,6 +378,15 @@ export async function onRequest({ request, env, params }) {
     if (collection === "ledger" && (row.vat > row.amount || Number(item.vat || 0) < 0 || Number(item.vat || 0) > row.amount)) return json({ error: "VAT included must be between zero and the gross amount." }, 400);
     if (collection === "ledger" && row.reconciled && !row.paid) return json({ error: "Mark the transaction paid before matching it to a statement." }, 400);
     const i = data[collection].findIndex((x) => x.id === row.id);
+    if (collection === "sites") {
+      if (i >= 0) {
+        row.jobNumber = data.sites[i].jobNumber;
+        if (data.sites[i].createdAt) row.createdAt = data.sites[i].createdAt;
+      } else {
+        row.jobNumber = data.nextJobNumber++;
+        row.createdAt = new Date().toISOString();
+      }
+    }
     if (collection === "ledger" && i >= 0 && data.invoices.some((inv) => inv.ledgerId === row.id)) {
       const old = data.ledger[i];
       if (row.amount !== old.amount || row.type !== old.type || row.date !== old.date || row.vat !== (old.vat || 0) || row.treatment !== (old.treatment || "trading")) return json({ error: "Invoice amounts and dates cannot be changed through an entry. Create a replacement invoice instead." }, 409);
