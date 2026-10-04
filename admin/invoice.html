@@ -60,15 +60,17 @@
     var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
     var gbp = function (n) { return '£' + Number(n || 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
     var fmt = function (d) { return d ? new Date(d + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : ''; };
-    var id = new URLSearchParams(location.search).get('id');
+    var query = new URLSearchParams(location.search);
+    var id = query.get('id'), venture = query.get('venture') || 'sunnymead-web';
 
     function render(D) {
       var inv = (D.invoices || []).find(function (i) { return i.id === id; });
       if (!inv) { document.getElementById('sheet').innerHTML = '<p>Invoice not found.</p>'; return; }
       var s = D.sites.find(function (x) { return x.id === inv.site; }) || {};
-      var b = D.business || {};
+      var b = inv.issuer || { ...(D.business || {}), legalName: D.company && D.company.name, companyNumber: D.company && D.company.companyNumber, registeredAddress: D.company && D.company.registeredAddress };
       var led = D.ledger.find(function (l) { return l.id === inv.ledgerId; });
       var paid = led && led.paid;
+      if (!led) { document.getElementById("sheet").textContent = "The invoice payment record is missing. Check the books before marking it paid."; return; }
       document.title = 'Invoice ' + inv.number + ' | ' + (b.name || 'Sunnymead Web');
       var bank = b.accountNumber ? '<div class="pay"><h3>How to pay</h3><dl>' +
         (b.bankName ? '<dt>Bank</dt><dd>' + esc(b.bankName) + '</dd>' : '') +
@@ -76,26 +78,27 @@
         '<dt>Sort code</dt><dd>' + esc(b.sortCode) + '</dd><dt>Account number</dt><dd>' + esc(b.accountNumber) + '</dd>' +
         '<dt>Reference</dt><dd>' + esc(inv.number) + '</dd></dl></div>' : '<div class="pay"><h3>How to pay</h3><p style="margin:0">Add your bank details in Settings so they show here.</p></div>';
       document.getElementById('sheet').innerHTML =
-        '<div class="top"><div><img src="/assets/logo.svg" alt="' + esc(b.name || 'Sunnymead Web') + '"></div>' +
+        '<div class="top"><div><h2>' + esc(b.name || 'Sunnymead Web') + '</h2><small>' + esc(b.legalName || 'Sunnymead Group Ltd') + '</small></div>' +
         '<div class="meta"><h1>INVOICE</h1><div><b>' + esc(inv.number) + '</b></div><div>Date: ' + fmt(inv.date) + '</div><div>Due: <b>' + fmt(inv.due) + '</b></div>' +
         '<span class="stamp ' + (paid ? 'paid">Paid' : 'owed">Not paid yet') + '</span></div></div>' +
-        '<div class="cols"><div><h3>FROM</h3><p><b>' + esc(b.name || 'Sunnymead Web') + '</b>\n' + esc(b.address || '') + (b.email ? '\n' + esc(b.email) : '') + (b.phone ? '\n' + esc(b.phone) : '') + '</p></div>' +
-        '<div><h3>TO</h3><p><b>' + esc(s.client || s.name) + '</b>' + (s.email ? '\n' + esc(s.email) : '') + (s.phone ? '\n' + esc(s.phone) : '') + '</p></div></div>' +
+        '<div class="cols"><div><h3>FROM</h3><p><b>' + esc(b.name || 'Sunnymead Web') + '</b>\n' + esc(b.legalName || 'Sunnymead Group Ltd') + (b.companyNumber ? '\nCompany no: ' + esc(b.companyNumber) : '') + '\n' + esc(b.address || b.registeredAddress || '') + (b.email ? '\n' + esc(b.email) : '') + (b.phone ? '\n' + esc(b.phone) : '') + '</p></div>' +
+        '<div><h3>TO</h3><p><b>' + esc(inv.customer || s.client || s.name) + '</b>' + (inv.customerAddress ? '\n' + esc(inv.customerAddress) : '') + ((inv.customerEmail || s.email) ? '\n' + esc(inv.customerEmail || s.email) : '') + (s.phone ? '\n' + esc(s.phone) : '') + '</p></div></div>' +
         '<table><thead><tr><th>Description</th><th class="num">Amount</th></tr></thead><tbody>' +
         inv.lines.map(function (l) { return '<tr><td>' + esc(l.desc) + '</td><td class="num">' + gbp(l.amount) + '</td></tr>'; }).join('') +
-        '<tr class="total"><td>Total due</td><td class="num">' + gbp(inv.total) + '</td></tr></tbody></table>' +
+        ((inv.vat || 0) > 0 ? '<tr><td>VAT included in total (entered)</td><td class="num">' + gbp(inv.vat) + '</td></tr>' : '') + '<tr class="total"><td>Total due</td><td class="num">' + gbp(inv.total) + '</td></tr></tbody></table>' +
         (inv.note ? '<p class="note"><b>Payment terms:</b> ' + esc(inv.note) + '</p>' : '') +
         bank +
         '<p class="note">' + esc(b.footer || 'Thank you for your business.') + '</p>';
       var pb = document.getElementById('paidBtn');
       pb.style.display = paid ? 'none' : '';
       pb.onclick = function () {
-        led.paid = true;
-        fetch('/api/save', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ collection: 'ledger', item: led }) }).then(load);
+        led.paid = true; led.paidDate = new Date().toISOString().slice(0, 10);
+        pb.disabled = true;
+        fetch('/api/save?venture=' + encodeURIComponent(venture), { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ collection: 'ledger', item: led }) }).then(function (r) { return r.json(); }).then(function (r) { if (r.error) alert(r.error); else load(); }).catch(function () { alert('Could not update payment. Refresh and try again.'); }).finally(function () { pb.disabled = false; });
       };
     }
     function load() {
-      fetch('/api/data', { credentials: 'same-origin' }).then(function (r) {
+      fetch('/api/data?venture=' + encodeURIComponent(venture), { credentials: 'same-origin' }).then(function (r) {
         if (r.status === 401) { location.href = '/admin/'; return null; }
         return r.json();
       }).then(function (D) { if (D) render(D); });

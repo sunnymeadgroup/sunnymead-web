@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
-  <title>Admin | Sunnymead Web</title>
+  <title>Books | Sunnymead Group</title>
   <link rel="icon" type="image/png" href="/assets/favicon.png">
   <meta name="theme-color" content="#0f2a4a">
   <style>
@@ -14,6 +14,7 @@
       --good: #1f7a4d; --good-bg: #e6f4ec; --warn: #9a5b00; --warn-bg: #fff3df; --bad: #b42318; --bad-bg: #fdecea;
     }
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
     body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink); background: var(--cream); line-height: 1.55; font-size: 16px; }
     h1, h2, h3 { color: var(--navy); line-height: 1.2; margin: 0 0 .4em; }
     h1 { font-size: 1.9rem; } h2 { font-size: 1.35rem; } h3 { font-size: 1.05rem; }
@@ -116,40 +117,56 @@
     .chk { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: var(--ink); font-size: .95rem; }
     .chk input { width: auto; }
     .modal-acts { display: flex; justify-content: space-between; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+    .eyebrow { font-size:.72rem; letter-spacing:.12em; color:var(--muted); margin:0 0 6px; }
+    .workspace-head { margin:12px 0 24px; align-items:flex-end; }
+    .workspace-head p { margin-bottom:0; }
+    .workspace-actions { display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; }
+    .workspace-actions select { min-width:210px; }
+    .period-bar { display:flex; flex-wrap:wrap; align-items:flex-end; gap:12px; }
+    .period-bar input { max-width:175px; }
+    .period-bar span { max-width:340px; font-size:.85rem; padding:8px 0; }
+    .report-line { display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line); gap:20px; }
+    @media(max-width:600px) { header img { height:20px; } header .tag { font-size:.7rem; } .workspace-actions { width:100%; } .workspace-actions select { min-width:0; } }
   </style>
 </head>
 <body>
 <header>
   <div class="wrap">
-    <div style="display:flex;align-items:center"><img src="/assets/logo-white.svg" alt="sunnymead.web"><span class="tag">Admin</span></div>
+    <div style="display:flex;align-items:center"><img src="/assets/logo-white.svg" alt="sunnymead.web"><span class="tag">Sunnymead Group · Books</span></div>
     <button class="btn light small" id="logout" style="display:none">Log out</button>
   </div>
 </header>
 
 <main class="wrap">
   <form class="login" id="loginForm" style="display:none">
-    <h1>Admin login</h1>
+    <h1>Sign in to your books</h1>
     <div id="googleLogin" hidden style="margin-bottom:20px">
       <div id="googleButton"></div>
-      <p class="muted" style="font-size:.85rem;margin-top:12px">Use your approved Google account, or sign in with your password below.</p>
+      <p class="muted" style="font-size:.85rem;margin-top:12px">Use your approved Google account to access Sunnymead Group’s books.</p>
     </div>
-    <label for="pw">Password</label>
-    <input id="pw" type="password" autocomplete="current-password">
     <p class="err" id="loginErr"></p>
-    <button class="btn" style="width:100%">Log in</button>
   </form>
 
   <div id="app" style="display:none">
+    <div class="bar workspace-head">
+      <div><p class="eyebrow">SUNNYMEAD GROUP · BOOKKEEPING</p><h1 id="ventureHeading">Sunnymead Web</h1><p class="muted" id="ventureSubtitle">Income, expenses and invoices</p></div>
+      <div class="workspace-actions"><div><label for="ventureSelect">Trading name</label><select id="ventureSelect"></select></div><button class="btn ghost" id="addVenture">Add trading name</button><button class="btn ghost" id="companySettings">Company details</button></div>
+    </div>
+    <div class="panel period-bar"><div><label for="periodFrom">From</label><input id="periodFrom" type="date"></div><div><label for="periodTo">To</label><input id="periodTo" type="date"></div><button class="btn ghost" id="thisYear">This calendar year</button><button class="btn ghost" id="financialYear">This financial year</button><span class="muted">Reports use entry dates. Payment totals include only entries marked paid.</span></div>
+    <p class="err" id="appErr" role="status"></p>
     <nav class="tabs" id="tabs">
       <button class="on" data-tab="overview">Overview</button>
       <button data-tab="sites">Projects</button>
-      <button data-tab="money">Money</button>
+      <button data-tab="money">Transactions</button>
+      <button data-tab="invoices">Invoices</button>
+      <button data-tab="reports">Reports &amp; exports</button>
       <button data-tab="renewals">Renewals</button>
       <button data-tab="settings">Settings</button>
     </nav>
 
     <section data-view="overview">
       <div class="tiles" id="tiles"></div>
+      <div class="panel"><h2>Recent transactions</h2><div id="recentEntries"></div></div>
       <div class="cols">
         <div class="panel"><h2>Coming up</h2><p class="muted" style="margin-top:-4px;font-size:.9rem">Renewals and deadlines in the next month, plus anything overdue</p><div id="ovRenewals"></div></div>
         <div class="panel"><h2>Owed to you</h2><p class="muted" style="margin-top:-4px;font-size:.9rem">Income not marked as paid yet</p><div id="ovOwed"></div></div>
@@ -166,10 +183,10 @@
 
     <section data-view="money" hidden>
       <div class="bar">
-        <h1 style="margin:0">Money</h1>
+        <h1 style="margin:0">Transactions</h1>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <select id="taxYear" style="width:auto"></select>
-          <button class="btn ghost" id="fees">Add this month's fees</button>
+          <select id="taxYear" style="display:none"></select>
+          
           <button class="btn ghost" id="csv">Export for accountant</button>
           <button class="btn" id="addEntry">Add entry</button>
         </div>
@@ -180,19 +197,31 @@
         <div class="panel"><h2>Spending by type</h2><div id="byOutCat"></div></div>
       </div>
       <div class="panel">
-        <div class="bar" style="margin-bottom:6px"><h2 style="margin:0">Entries</h2>
-          <select id="ledgerFilter" style="width:auto"><option value="all">Everything</option><option value="in">Income</option><option value="out">Spending</option><option value="owed">Owed to you</option></select></div>
-        <div class="table-wrap"><table><thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Website</th><th class="num">Amount</th><th></th></tr></thead><tbody id="ledger"></tbody></table></div>
+        <div class="bar" style="margin-bottom:6px"><h2 style="margin:0">Transactions</h2><input id="ledgerSearch" aria-label="Search transactions" placeholder="Search description, customer or reference" style="max-width:320px">
+          <select id="ledgerFilter" style="width:auto"><option value="all">Everything</option><option value="in">Income</option><option value="out">Spending</option><option value="owed">Unpaid income</option><option value="bills">Unpaid bills</option><option value="unmatched">Not matched to statement</option></select></div>
+        <div class="table-wrap"><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Trading name / customer</th><th class="num">Amount</th><th></th></tr></thead><tbody id="ledger"></tbody></table></div>
       </div>
     </section>
 
     <section data-view="renewals" hidden>
       <div class="bar"><h1 style="margin:0">Renewals &amp; deadlines</h1><button class="btn" id="addReminder">Add reminder</button></div>
-      <p class="muted" style="margin-top:-6px">Domain renewals come from each website. Add anything else here: Companies House, accounts, tax, software subscriptions.</p>
+      <p class="muted" style="margin-top:-6px">Track renewal dates and bookkeeping deadlines for the selected trading name. Website renewals remain available for Sunnymead Web.</p>
       <div class="panel" id="renewList"></div>
     </section>
+    <section data-view="invoices" hidden>
+      <div class="bar"><h1>Invoices</h1><button class="btn" id="newInvoice">Create invoice</button></div>
+      <div class="panel table-wrap"><table><thead><tr><th>Invoice</th><th>Customer</th><th>Issued</th><th>Due</th><th class="num">Total</th><th>Status</th><th></th></tr></thead><tbody id="invoiceList"></tbody></table></div>
+    </section>
+    <section data-view="reports" hidden>
+      <h1>Reports &amp; exports</h1>
+      <p class="muted">Bookkeeping summaries for the selected dates. Asset purchases, financing and internal transfers are shown separately from trading activity.</p>
+      <div class="panel" id="reportSummary"></div>
+      <div class="bar"><button class="btn" id="reportCsv">Export transactions (CSV)</button><button class="btn ghost" id="backup">Download company backup (JSON)</button></div>
+      <div class="panel"><h2>Record history</h2><p class="muted">Transaction, invoice, project, reminder and invoice-setting changes made after this update are recorded here.</p><div id="auditList"></div></div>
+    </section>
     <section data-view="settings" hidden>
-      <h1>Settings</h1>
+      <h1>Trading name settings</h1>
+      <div class="panel" style="max-width:640px"><label for="ventureStatus">Venture status</label><div style="display:flex;gap:10px"><select id="ventureStatus"><option value="active">Active</option><option value="planned">Planned / future venture</option></select><button class="btn ghost" id="saveVentureStatus">Save status</button></div></div>
       <p class="muted" style="margin-top:-6px">These details appear on your invoices.</p>
       <form class="panel" id="bizForm" style="max-width:640px">
         <div class="grid2">
@@ -255,15 +284,25 @@
   <h2 id="entryTitle">Entry</h2>
   <input type="hidden" name="id"><input type="hidden" name="ref">
   <div class="grid2">
-    <div><label>Money</label><select name="type"><option value="in">Coming in (income)</option><option value="out">Going out (spending)</option></select></div>
+    <div><label>Money</label><select name="type"><option value="in">Money in</option><option value="out">Money out</option></select></div>
     <div><label>Date</label><input name="date" type="date" required></div>
-    <div><label>Amount (£)</label><input name="amount" type="number" step="0.01" min="0" required></div>
+    <div><label>Amount (£)</label><input name="amount" type="number" step="0.01" min="0.01" required></div>
     <div><label>Type</label><input name="category" list="cats" placeholder="Build, Maintenance, Domain..."></div>
   </div>
-  <datalist id="cats"><option>Build</option><option>Maintenance</option><option>Domain</option><option>Hosting</option><option>Software</option><option>Equipment</option><option>Advertising</option><option>Phone</option><option>Bank fees</option><option>Other</option></datalist>
-  <label>Website (optional)</label><select name="site"></select>
+  <datalist id="cats"><option>Build</option><option>Maintenance</option><option>Domain</option><option>Hosting</option><option>Software</option><option>Equipment</option><option>Advertising</option><option>Phone</option><option>Bank fees</option><option>Sales</option><option>Stock</option><option>Rent</option><option>Utilities</option><option>Insurance</option><option>Professional fees</option><option>Travel</option><option>Other</option></datalist>
+  <div id="entryProject"><label>Website project (optional)</label><select name="site"></select></div>
   <label>Description</label><input name="description">
-  <label class="chk" id="paidWrap"><input type="checkbox" name="paid"> Paid (money received)</label>
+  <div class="grid2">
+    <div><label>Customer / supplier</label><input name="counterparty"></div>
+    <div><label>Bank account / cash</label><input name="account" placeholder="Business current account"></div>
+    <div><label>Payment date</label><input name="paidDate" type="date"></div>
+    <div><label>Due date (optional)</label><input name="due" type="date"></div>
+    <div><label>VAT included (£, if applicable)</label><input name="vat" type="number" min="0" step="0.01" value="0"></div>
+    <div><label>Accounting treatment</label><select name="treatment"><option value="trading">Trading income / expense</option><option value="asset">Asset purchase / disposal</option><option value="finance">Capital / loan / owner funds</option><option value="transfer">Internal transfer</option></select></div>
+  </div>
+  <label>Receipt / document reference</label><input name="receipt" placeholder="Receipt filename, folder or reference">
+  <label class="chk" id="paidWrap"><input type="checkbox" name="paid"> Paid (money received or spent)</label>
+  <label class="chk"><input type="checkbox" name="reconciled"> Matched to bank statement</label>
   <div class="modal-acts"><button type="button" class="btn danger" id="entryDelete">Delete</button><span style="display:flex;gap:8px"><button type="button" class="btn ghost" data-close>Cancel</button><button class="btn">Save</button></span></div>
 </form></dialog>
 
@@ -280,15 +319,43 @@
   <div class="modal-acts"><button type="button" class="btn danger" id="remDelete">Delete</button><span style="display:flex;gap:8px"><button type="button" class="btn ghost" data-close>Cancel</button><button class="btn">Save</button></span></div>
 </form></dialog>
 
+<dialog id="ventureDlg"><form id="ventureForm">
+  <h2>Add a trading name</h2><p class="muted">Each trading name has its own transactions and invoices within the company books. Future ventures can be marked Planned.</p>
+  <label>Trading name</label><input name="name" required placeholder="For example, Murv's Bar">
+  <label>Invoice prefix</label><input name="prefix" required maxlength="8" pattern="[A-Za-z0-9]+" placeholder="MB">
+  <label>Status</label><select name="status"><option value="active">Active</option><option value="planned">Planned / future venture</option></select>
+  <p class="err" id="ventureErr"></p><div class="modal-acts"><button type="button" class="btn ghost" data-close>Cancel</button><button class="btn">Add trading name</button></div>
+</form></dialog>
+<dialog id="companyDlg"><form id="companyForm">
+  <h2>Company details</h2><label>Registered company name</label><input name="name" required value="Sunnymead Group Ltd">
+  <label>Company number</label><input name="companyNumber">
+  <label>Registered address</label><textarea name="registeredAddress" rows="3"></textarea>
+  <label>Financial year starts (MM-DD)</label><input name="yearStart" pattern="[0-9]{2}-[0-9]{2}" placeholder="01-01" required>
+  <p class="muted">Enter your company's actual financial year start. Until set, date filters start with the calendar year.</p>
+  <p class="err" id="companyErr"></p><div class="modal-acts"><button type="button" class="btn ghost" data-close>Cancel</button><button class="btn">Save company details</button></div>
+</form></dialog>
+<dialog id="invoiceDlg"><form id="invoiceForm">
+  <h2>Create invoice</h2><label>Customer</label><input name="customer" required>
+  <div class="grid2"><div><label>Email (optional)</label><input name="customerEmail" type="email"></div><div><label>Total including VAT (£)</label><input name="amount" type="number" min="0.01" step="0.01" required></div></div>
+  <label>Customer address</label><textarea name="customerAddress" rows="2"></textarea>
+  <label>Description</label><textarea name="description" rows="3" required></textarea>
+  <div class="grid2"><div><label>Invoice date</label><input name="date" type="date" required></div><div><label>Due date</label><input name="due" type="date" required></div></div>
+  <label>VAT included (£, only if applicable)</label><input name="vat" type="number" step="0.01" min="0" value="0">
+  <label>Payment terms / note</label><textarea name="note" rows="2"></textarea>
+  <p class="err" id="invoiceErr"></p><div class="modal-acts"><button type="button" class="btn ghost" data-close>Cancel</button><button class="btn">Create invoice</button></div>
+</form></dialog>
+
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
-  var D = { sites: [], ledger: [], reminders: [] };
+  var D = { sites: [], ledger: [], reminders: [], invoices: [], audit: [] };
+  var ventures = [], company = {}, activeVenture = 'sunnymead-web';
+  try { activeVenture = localStorage.getItem('sm-venture') || activeVenture; } catch (e) {}
   var TODAY = new Date().toISOString().slice(0, 10);
 
   function api(path, body) {
-    return fetch('/api/' + path, body === undefined ? { credentials: 'same-origin' } : { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+    return fetch('/api/' + path + '?venture=' + encodeURIComponent(activeVenture === 'company' ? 'sunnymead-web' : activeVenture), body === undefined ? { credentials: 'same-origin' } : { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().then(function (j) { j._status = r.status; return j; }); });
   }
   var gbp = function (n) { return '£' + Number(n || 0).toLocaleString('en-GB', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
@@ -305,8 +372,99 @@
   function invoicesFor(id) { return (D.invoices || []).filter(function (i) { return i.site === id; }); }
   function invPaid(inv) { var l = D.ledger.find(function (x) { return x.id === inv.ledgerId; }); return l ? l.paid : false; }
   function invLink(inv) { return '<a href="/admin/invoice.html?id=' + inv.id + '" target="_blank">' + inv.number + '</a> <span class="chip ' + (invPaid(inv) ? 'good">Paid' : 'warn">Owed') + '</span>'; }
-  function taxYearOf(d) { var y = +d.slice(0, 4); return d >= y + '-04-06' ? y : y - 1; }
   function siteName(id) { var s = D.sites.find(function (x) { return x.id === id; }); return s ? s.name : ''; }
+
+  function sumMoney(rows) { return rows.reduce(function (sum, r) { return sum + Math.round(Number(r.amount || 0) * 100); }, 0) / 100; }
+  function periodEntries() {
+    var from = $('periodFrom').value, to = $('periodTo').value;
+    if (from && to && from > to) { $('appErr').textContent = 'The start date must come before the end date.'; return []; }
+    $('appErr').textContent = '';
+    return D.ledger.filter(function (r) { return (!from || r.date >= from) && (!to || r.date <= to); });
+  }
+  function bookTotals(rows) {
+    var trading = rows.filter(function (r) { return !r.treatment || r.treatment === 'trading'; });
+    var income = trading.filter(function (r) { return r.type === 'in'; }), expenses = trading.filter(function (r) { return r.type === 'out'; });
+    return { sales: sumMoney(income), costs: sumMoney(expenses), received: sumMoney(income.filter(function (r) { return r.paid; })), spent: sumMoney(expenses.filter(function (r) { return r.paid; })) };
+  }
+  function renderWorkspace() {
+    $('loginErr').textContent = '';
+    $('ventureSelect').innerHTML = '<option value="company">All trading names · company view</option>' + ventures.map(function (v) { return '<option value="' + esc(v.id) + '">' + esc(v.name) + (v.status === 'planned' ? ' · Planned' : '') + '</option>'; }).join('');
+    $('ventureSelect').value = activeVenture;
+    $('ventureHeading').textContent = activeVenture === 'company' ? company.name : D.venture.name;
+    $('ventureSubtitle').textContent = activeVenture === 'company' ? 'Combined bookkeeping across all trading names' : 'A trading name of ' + company.name + (D.venture.status === 'planned' ? ' · Planned venture' : '');
+    var web = activeVenture !== 'company' && D.venture.kind === 'web';
+    document.querySelector('[data-tab="sites"]').hidden = !web;
+    document.querySelector('[data-tab="settings"]').hidden = activeVenture === 'company';
+    $('addEntry').hidden = activeVenture === 'company';
+    $('newInvoice').hidden = activeVenture === 'company';
+    $('ventureStatus').value = D.venture.status || 'active';
+    $('addReminder').hidden = activeVenture === 'company';
+    var tab = document.querySelector('#tabs .on');
+    if (tab && tab.hidden) document.querySelector('[data-tab="overview"]').click();
+  }
+  function invoiceUrl(inv) { return '/admin/invoice.html?id=' + encodeURIComponent(inv.id) + '&venture=' + encodeURIComponent(inv._venture || activeVenture); }
+  function renderBooks() {
+    var rows = periodEntries(), t = bookTotals(rows);
+    $('recentEntries').innerHTML = rows.slice().sort(function (a, b) { return b.date.localeCompare(a.date); }).slice(0, 6).map(function (r) { return '<div class="row"><div class="main"><b>' + esc(r.description || r.category) + '</b><small>' + fmtDate(r.date) + ' · ' + esc(r._ventureName || D.venture.name) + '</small></div><b class="' + r.type + '">' + (r.type === 'out' ? '−' : '') + gbp(r.amount) + '</b></div>'; }).join('') || '<p class="empty">Start by adding an income or expense transaction.</p>';
+    var invoices = (D.invoices || []).filter(function (inv) { return (!$('periodFrom').value || inv.date >= $('periodFrom').value) && (!$('periodTo').value || inv.date <= $('periodTo').value); });
+    $('invoiceList').innerHTML = invoices.slice().sort(function (a, b) { return b.date.localeCompare(a.date); }).map(function (inv) {
+      var paid = invPaid(inv), customer = inv.customer || siteName(inv.site), overdue = !paid && inv.due < TODAY;
+      return '<tr><td><a href="' + invoiceUrl(inv) + '" target="_blank" rel="noopener">' + esc(inv.number) + '</a><small class="paidline">' + esc(inv._ventureName || D.venture.name) + '</small></td><td>' + esc(customer) + '</td><td>' + fmtDate(inv.date) + '</td><td>' + fmtDate(inv.due) + '</td><td class="num">' + gbp(inv.total) + '</td><td><span class="chip ' + (paid ? 'good' : overdue ? 'bad' : 'warn') + '">' + (paid ? 'Paid' : overdue ? 'Overdue' : 'Unpaid') + '</span></td><td>' + (!paid && activeVenture !== 'company' ? '<button class="link" data-paid="' + esc(inv.ledgerId) + '">Mark paid</button>' : '') + '</td></tr>';
+    }).join('') || '<tr><td colspan="7" class="empty">No invoices in this period.</td></tr>';
+    var report = [
+      ['Trading income recorded (gross)', t.sales], ['Trading expenses recorded (gross)', t.costs],
+      ['Recorded trading surplus (before adjustments)', Math.round((t.sales - t.costs) * 100) / 100],
+      ['Trading income received', t.received], ['Trading expenses paid', t.spent],
+      ['Trading cash surplus', Math.round((t.received - t.spent) * 100) / 100]
+    ];
+    ['asset', 'finance', 'transfer'].forEach(function (kind) {
+      var items = rows.filter(function (r) { return r.treatment === kind; });
+      report.push([({ asset: 'Asset movements', finance: 'Capital / loan / owner funds', transfer: 'Internal transfers' })[kind] + ' · money in', sumMoney(items.filter(function (r) { return r.type === 'in'; }))]);
+      report.push([({ asset: 'Asset movements', finance: 'Capital / loan / owner funds', transfer: 'Internal transfers' })[kind] + ' · money out', sumMoney(items.filter(function (r) { return r.type === 'out'; }))]);
+    });
+    var vatIn = rows.filter(function (r) { return r.type === 'in'; }).reduce(function (sum, r) { return sum + Math.round((r.vat || 0) * 100); }, 0) / 100;
+    var vatOut = rows.filter(function (r) { return r.type === 'out'; }).reduce(function (sum, r) { return sum + Math.round((r.vat || 0) * 100); }, 0) / 100;
+    report.push(['VAT entered on money in', vatIn], ['VAT entered on money out', vatOut]);
+    $('reportSummary').innerHTML = '<h2>Period summary</h2>' + report.map(function (line) { return '<div class="report-line"><span>' + esc(line[0]) + '</span><b>' + gbp(line[1]) + '</b></div>'; }).join('') + '<p class="muted" style="margin-top:16px">These are bookkeeping totals, not statutory accounts or a tax return. VAT amounts are entered manually; reports include gross amounts and do not calculate VAT payable.</p>';
+    $('auditList').innerHTML = (D.audit || []).slice().sort(function (a, b) { return b.at.localeCompare(a.at); }).slice(0, 20).map(function (event) { return '<div class="row"><div class="main"><b>' + esc((event.changes || []).map(function (change) { return change.collection + (change.id ? ' ' + change.id : ''); }).join(', ')) + '</b><small>' + esc(new Date(event.at).toLocaleString('en-GB')) + ' · ' + esc(event.actor) + (event._ventureName ? ' · ' + esc(event._ventureName) : '') + '</small></div></div>'; }).join('') || '<p class="empty">No changes recorded yet.</p>';
+    if (activeVenture === 'company') {
+      document.querySelectorAll('[data-edit-site],[data-edit-rem],[data-done],[data-paid],[data-invoice]').forEach(function (button) { button.hidden = true; });
+    }
+  }
+  function downloadFile(name, content, type) {
+    var url = URL.createObjectURL(new Blob([content], { type: type })), link = document.createElement('a');
+    link.href = url; link.download = name; link.click(); setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+  function exportBooks() {
+    var quote = function (value) { return '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"'; };
+    var headers = ['Trading name','Date','Money direction','Treatment','Category','Customer / supplier','Description','Gross GBP','VAT entered GBP','Net GBP','Paid','Payment date','Due date','Account','Statement matched','Reference','Receipt / document'];
+    var lines = periodEntries().slice().sort(function (a,b) { return a.date.localeCompare(b.date); }).map(function (r) {
+      return [r._ventureName || D.venture.name,r.date,r.type === 'in' ? 'In' : 'Out',r.treatment || 'trading',r.category,r.counterparty,r.description,Number(r.amount).toFixed(2),Number(r.vat || 0).toFixed(2),((Math.round(r.amount * 100) - Math.round((r.vat || 0) * 100)) / 100).toFixed(2),r.paid ? 'Yes' : 'No',r.paidDate,r.due,r.account,r.reconciled ? 'Yes' : 'No',r.ref,r.receipt].map(function (v) { var text = String(v == null ? '' : v); return quote(/^[=+@-]/.test(text) ? "'" + text : text); }).join(',');
+    });
+    downloadFile('sunnymead-books-' + activeVenture + '-' + $('periodFrom').value + '-to-' + $('periodTo').value + '.csv', '\uFEFF' + [headers.map(quote).join(',')].concat(lines).join('\r\n'), 'text/csv;charset=utf-8');
+  }
+  $('periodFrom').value = TODAY.slice(0,4) + '-01-01'; $('periodTo').value = TODAY;
+  $('periodFrom').onchange = render; $('periodTo').onchange = render; $('ledgerSearch').oninput = renderMoney;
+  $('thisYear').onclick = function () { $('periodFrom').value = TODAY.slice(0,4) + '-01-01'; $('periodTo').value = TODAY; render(); };
+  $('financialYear').onclick = function () {
+    var start = company.yearStart || '01-01', year = Number(TODAY.slice(0,4));
+    if (TODAY.slice(5) < start) year--;
+    var month = Number(start.slice(0,2)), day = Number(start.slice(3));
+    var lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+    $('periodFrom').value = year + '-' + start.slice(0,2) + '-' + String(Math.min(day, lastDay)).padStart(2, '0');
+    $('periodTo').value = TODAY; render();
+  };
+  $('ventureSelect').onchange = function () { activeVenture = this.value; try { localStorage.setItem('sm-venture', activeVenture); } catch(e) {} $('ledgerSearch').value = ''; load(); };
+  $('addVenture').onclick = function () { $('ventureForm').reset(); $('ventureErr').textContent = ''; $('ventureDlg').showModal(); };
+  $('ventureForm').onsubmit = function (e) { e.preventDefault(); var form = this, button = form.querySelector('button:not([type])'); button.disabled = true; api('ventures', read(form)).then(function (r) { if (r.error) { $('ventureErr').textContent = r.error; return; } activeVenture = r.venture.id; try { localStorage.setItem('sm-venture', activeVenture); } catch(e) {} $('ventureDlg').close(); return load(); }).catch(function () { $('ventureErr').textContent = 'Could not save. Try again.'; }).finally(function () { button.disabled = false; }); };
+  $('saveVentureStatus').onclick = function () { api('venture-status', { id: activeVenture, status: $('ventureStatus').value }).then(function (r) { if (r.error) return alert(r.error); load(); }); };
+  $('companySettings').onclick = function () { fill($('companyForm'), company); $('companyErr').textContent = ''; $('companyDlg').showModal(); };
+  $('companyForm').onsubmit = function (e) { e.preventDefault(); api('company-settings', read(this)).then(function (r) { if (r.error) { $('companyErr').textContent = r.error; return; } $('companyDlg').close(); load(); }); };
+  $('newInvoice').onclick = function () { var form = $('invoiceForm'); form.reset(); form.elements.date.value = TODAY; form.elements.due.value = addDaysISO(TODAY, Number(D.business.payDays || 14)); $('invoiceErr').textContent = ''; $('invoiceDlg').showModal(); };
+  $('invoiceForm').onsubmit = function (e) { e.preventDefault(); var button = this.querySelector('button:not([type])'); button.disabled = true; api('invoice-create', read(this)).then(function (r) { if (r.error) { $('invoiceErr').textContent = r.error; return; } $('invoiceDlg').close(); load(); }).catch(function () { $('invoiceErr').textContent = 'Could not create invoice. Refresh and check the invoice list before trying again.'; }).finally(function () { button.disabled = false; }); };
+  $('reportCsv').onclick = exportBooks;
+  $('backup').onclick = function () { var button = this; button.disabled = true; api('company-data').then(function (r) { if (r.error) return alert(r.error); downloadFile('sunnymead-company-backup-' + TODAY + '.json', JSON.stringify(r, null, 2), 'application/json'); }).catch(function () { alert('Could not download backup. Try again.'); }).finally(function () { button.disabled = false; }); };
+
 
   // ----- login -----
   var googleStarted = false;
@@ -314,7 +472,7 @@
     if (googleStarted) return;
     googleStarted = true;
     api('auth-config').then(function (config) {
-      if (!config.googleEnabled) return;
+      if (!config.googleEnabled) { $('loginErr').textContent = 'Google sign-in is not configured. Check the Google settings in Cloudflare.'; return; }
       var script = document.createElement('script');
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
@@ -342,22 +500,37 @@
         $('googleButton').textContent = '';
         google.accounts.id.renderButton($('googleButton'), { type: 'standard', theme: 'outline', size: 'large', text: 'signin_with', shape: 'rectangular' });
       };
-      script.onerror = function () { $('loginErr').textContent = 'Google sign-in could not load. Refresh the page or use your password.'; };
+      script.onerror = function () { $('loginErr').textContent = 'Google sign-in could not load. Refresh the page and try again.'; };
       document.head.appendChild(script);
     }).catch(function () { googleStarted = false; });
   }
+  var loadVersion = 0;
   function load() {
-    return api('data').then(function (r) {
+    var version = ++loadVersion;
+    return api('ventures').then(function (registry) {
+      if (registry._status === 401) return registry;
+      if (registry.error) return registry;
+      ventures = registry.ventures; company = registry.company;
+      if (activeVenture !== 'company' && !ventures.some(function (v) { return v.id === activeVenture; })) activeVenture = 'sunnymead-web';
+      return api(activeVenture === 'company' ? 'company-data' : 'data');
+    }).then(function (r) {
+      if (version !== loadVersion) return;
+      if (r.books) {
+        var combined = { sites: [], ledger: [], reminders: [], invoices: [], audit: [], business: {}, company: r.company, venture: { name: r.company.name, kind: 'company' } };
+        r.books.forEach(function (book) {
+          ['sites', 'ledger', 'reminders', 'invoices', 'audit'].forEach(function (key) {
+            (book.data[key] || []).forEach(function (row) { combined[key].push(Object.assign({}, row, { _venture: book.venture.id, _ventureName: book.venture.name })); });
+          });
+        });
+        r = combined;
+      }
       if (r._status === 401) { $('loginForm').style.display = ''; $('app').style.display = 'none'; $('logout').style.display = 'none'; startGoogleLogin(); return; }
       if (r.error) { $('loginForm').style.display = ''; $('loginErr').textContent = r.error; return; }
       D = r; $('loginForm').style.display = 'none'; $('app').style.display = ''; $('logout').style.display = '';
-      render();
-    });
+      renderWorkspace(); render();
+    }).catch(function () { $('appErr').textContent = 'Could not load your books. Refresh the page and try again.'; });
   }
-  $('loginForm').onsubmit = function (e) {
-    e.preventDefault(); $('loginErr').textContent = '';
-    api('login', { password: $('pw').value }).then(function (r) { if (r.error) $('loginErr').textContent = r.error; else { $('pw').value = ''; load(); } });
-  };
+  $('loginForm').onsubmit = function (e) { e.preventDefault(); };
   $('logout').onclick = function () { api('logout', {}).then(function () { location.reload(); }); };
 
   // ----- tabs -----
@@ -395,22 +568,18 @@
     var clients = D.sites.filter(function (s) { return !s.own; });
     var live = clients.filter(function (s) { return s.status === 'live'; });
     var mrr = live.reduce(function (a, s) { return a + (s.monthly || 0); }, 0);
-    var ty = taxYearOf(TODAY);
-    var inYear = D.ledger.filter(function (x) { return taxYearOf(x.date) === ty; });
-    var income = inYear.filter(function (x) { return x.type === 'in' && x.paid; }).reduce(function (a, x) { return a + x.amount; }, 0);
-    var spend = inYear.filter(function (x) { return x.type === 'out'; }).reduce(function (a, x) { return a + x.amount; }, 0);
     var owed = D.ledger.filter(function (x) { return x.type === 'in' && !x.paid; });
     var owedTotal = owed.reduce(function (a, x) { return a + x.amount; }, 0);
     var rn = renewals(), soon = rn.filter(function (r) { return daysUntil(r.due) <= 31; });
     var unpaidBuilds = clients.filter(function (s) { return s.build > 0 && s.status !== 'ended' && (!s.depositPaid || !s.balancePaid); });
 
-    $('tiles').innerHTML =
-      tile('Live client websites', live.length, clients.length + ' clients in total') +
-      tile('Monthly fees coming in', gbp(mrr), 'From live sites') +
-      tile('Income this tax year', gbp(income), ty + '/' + String(ty + 1).slice(2) + ', money received') +
-      tile('Spending this tax year', gbp(spend), 'Profit ' + gbp(income - spend)) +
-      tile('Owed to you', gbp(owedTotal), owed.length + ' unpaid') +
-      tile('Due in 30 days', rn.filter(function (r) { return daysUntil(r.due) <= 30; }).length, 'Renewals and deadlines');
+    var period = periodEntries(), totals = bookTotals(period);
+    $('tiles').innerHTML = tile('Income received', gbp(totals.received), 'Trading income · selected dates') +
+      tile('Expenses paid', gbp(totals.spent), 'Trading expenses · selected dates') +
+      tile('Trading cash surplus', gbp(totals.received - totals.spent), 'Before tax, assets and financing') +
+      tile('Customers owe', gbp(sumMoney(D.ledger.filter(function (x) { return x.type === 'in' && !x.paid; }))), 'All unpaid income') +
+      tile('Bills to pay', gbp(sumMoney(D.ledger.filter(function (x) { return x.type === 'out' && !x.paid; }))), 'All unpaid expenses') +
+      tile('Not matched', D.ledger.filter(function (x) { return x.paid && !x.reconciled; }).length, 'Paid entries to match to statements');
 
     $('ovRenewals').innerHTML = soon.length ? soon.map(renewalRow).join('') : '<p class="empty">Nothing due in the next month.</p>';
     $('ovOwed').innerHTML = (owed.length || unpaidBuilds.length)
@@ -418,7 +587,7 @@
         unpaidBuilds.map(function (s) { var left = (s.depositPaid ? 0 : s.build / 2) + (s.balancePaid ? 0 : s.build / 2); return '<div class="row"><div class="main"><b>' + esc(s.name) + ' build</b><small>' + (s.depositPaid ? 'Deposit paid, balance to come' : 'Deposit and balance to come') + (s.status === 'demo' ? ' (still a demo)' : '') + '</small></div><div style="display:flex;gap:10px;align-items:center"><b>' + gbp(left) + '</b><button class="link" data-edit-site="' + s.id + '">Edit</button></div></div>'; }).join('')
       : '<p class="empty">Nobody owes you anything.</p>';
 
-    renderSites(); renderMoney(); fillBiz();
+    renderSites(); renderMoney(); fillBiz(); renderBooks();
     $('renewList').innerHTML = rn.length ? rn.map(renewalRow).join('') : '<p class="empty">No renewals yet. Add domain renewal dates to your websites, or add a reminder.</p>';
   }
   function tile(label, value, sub) { return '<div class="tile"><span>' + label + '</span><b>' + value + '</b><small>' + esc(sub) + '</small></div>'; }
@@ -463,25 +632,22 @@
   }
 
   function renderMoney() {
-    var years = {}; years[taxYearOf(TODAY)] = 1; D.ledger.forEach(function (x) { years[taxYearOf(x.date)] = 1; });
-    var sel = $('taxYear'), cur = sel.value || String(taxYearOf(TODAY));
-    sel.innerHTML = Object.keys(years).sort().reverse().map(function (y) { return '<option value="' + y + '">Tax year ' + y + '/' + String(+y + 1).slice(2) + '</option>'; }).join('');
-    sel.value = cur;
-    var ty = +sel.value, rows = D.ledger.filter(function (x) { return taxYearOf(x.date) === ty; });
-    var inc = rows.filter(function (x) { return x.type === 'in' && x.paid; }), out = rows.filter(function (x) { return x.type === 'out'; });
-    var sum = function (l) { return l.reduce(function (a, x) { return a + x.amount; }, 0); };
-    $('moneyTiles').innerHTML = tile('Income received', gbp(sum(inc)), '6 Apr ' + ty + ' to 5 Apr ' + (ty + 1)) + tile('Spending', gbp(sum(out)), out.length + (out.length === 1 ? ' entry' : ' entries')) + tile('Profit', gbp(sum(inc) - sum(out)), 'Before tax') + tile('Owed to you', gbp(sum(rows.filter(function (x) { return x.type === 'in' && !x.paid; }))), 'In this tax year');
-    function byCat(list) {
-      var m = {}; list.forEach(function (x) { m[x.category] = (m[x.category] || 0) + x.amount; });
-      var keys = Object.keys(m).sort(function (a, b) { return m[b] - m[a]; });
-      return keys.length ? keys.map(function (k) { return '<div class="row"><span>' + esc(k) + '</span><b>' + gbp(m[k]) + '</b></div>'; }).join('') : '<p class="empty">Nothing yet.</p>';
+    var rows = periodEntries(), t = bookTotals(rows);
+    $('moneyTiles').innerHTML = tile('Trading income recorded', gbp(t.sales), 'Includes unpaid invoices') + tile('Trading expenses recorded', gbp(t.costs), 'Includes unpaid bills') + tile('Recorded trading surplus', gbp(t.sales - t.costs), 'Before tax and adjustments');
+    function categories(type) {
+      var groups = {};
+      rows.filter(function (r) { return r.type === type && (!r.treatment || r.treatment === 'trading'); }).forEach(function (r) { groups[r.category || 'Other'] = (groups[r.category || 'Other'] || 0) + Math.round(r.amount * 100); });
+      return Object.keys(groups).sort().map(function (name) { return '<div class="row"><span>' + esc(name) + '</span><b>' + gbp(groups[name] / 100) + '</b></div>'; }).join('') || '<p class="empty">No entries in this period.</p>';
     }
-    $('byInCat').innerHTML = byCat(inc); $('byOutCat').innerHTML = byCat(out);
-    var f = $('ledgerFilter').value;
-    var shown = rows.filter(function (x) { return f === 'all' || (f === 'owed' ? x.type === 'in' && !x.paid : x.type === f); }).sort(function (a, b) { return b.date.localeCompare(a.date); });
-    $('ledger').innerHTML = shown.length ? shown.map(function (x) {
-      return '<tr><td>' + fmtDate(x.date) + '</td><td>' + esc(x.description) + (x.type === 'in' && !x.paid ? ' <span class="chip warn">Owed</span>' : '') + '</td><td>' + esc(x.category) + '</td><td>' + esc(siteName(x.site)) + '</td><td class="num ' + x.type + '">' + (x.type === 'out' ? '−' : '') + gbp(x.amount) + '</td><td class="num"><button class="link" data-edit-entry="' + x.id + '">Edit</button></td></tr>';
-    }).join('') : '<tr><td colspan="6" class="empty">No entries for this tax year yet.</td></tr>';
+    $('byInCat').innerHTML = categories('in'); $('byOutCat').innerHTML = categories('out');
+    var f = $('ledgerFilter').value, query = $('ledgerSearch').value.toLowerCase();
+    var shown = rows.filter(function (r) {
+      return (f === 'all' || f === r.type || f === 'owed' && r.type === 'in' && !r.paid || f === 'bills' && r.type === 'out' && !r.paid || f === 'unmatched' && r.paid && !r.reconciled) &&
+        [r.description, r.counterparty, r.ref, r.category, r.account, r._ventureName].join(' ').toLowerCase().includes(query);
+    }).sort(function (a, b) { return b.date.localeCompare(a.date); });
+    $('ledger').innerHTML = shown.map(function (r) {
+      return '<tr><td>' + fmtDate(r.date) + '</td><td>' + esc(r.description) + '<small class="paidline">' + esc(r.paid ? 'Paid' : 'Unpaid') + (r.reconciled ? ' · Matched' : '') + (r.receipt ? ' · Document: ' + esc(r.receipt) : '') + '</small></td><td>' + esc(r.category) + '<small class="paidline">' + esc(r.treatment || 'trading') + '</small></td><td>' + esc(r._ventureName || D.venture.name) + '<small class="paidline">' + esc(r.counterparty || siteName(r.site)) + '</small></td><td class="num ' + r.type + '">' + (r.type === 'out' ? '−' : '') + gbp(r.amount) + '</td><td class="num">' + (activeVenture === 'company' ? '' : '<button class="link" data-edit-entry="' + esc(r.id) + '">Edit</button>') + '</td></tr>';
+    }).join('') || '<tr><td colspan="6" class="empty">No transactions match these dates and filters.</td></tr>';
   }
   $('taxYear').onchange = renderMoney; $('ledgerFilter').onchange = renderMoney;
 
@@ -503,7 +669,7 @@
   }
   function del(collection, id, dlg) {
     if (!id || !confirm('Delete this for good?')) return;
-    api('delete', { collection: collection, id: id }).then(function () { dlg.close(); load(); });
+    api('delete', { collection: collection, id: id }).then(function (r) { if (r.error) return alert(r.error); dlg.close(); load(); });
   }
 
   function editSite(id) {
@@ -516,13 +682,13 @@
   $('siteDelete').onclick = function () { del('sites', $('siteForm').elements.id.value, $('siteDlg')); };
 
   function editEntry(id, preset) {
-    var x = D.ledger.find(function (y) { return y.id === id; }) || Object.assign({ type: 'in', date: TODAY, paid: true }, preset || {});
+    var x = D.ledger.find(function (y) { return y.id === id; }) || Object.assign({ type: 'in', date: TODAY, paid: true, paidDate: TODAY, treatment: 'trading', vat: 0 }, preset || {});
     $('entryForm').elements.site.innerHTML = '<option value="">None</option>' + D.sites.map(function (s) { return '<option value="' + s.id + '">' + esc(s.name) + '</option>'; }).join('');
     fill($('entryForm'), x); $('entryTitle').textContent = id ? 'Edit entry' : 'Add entry';
-    $('paidWrap').style.display = x.type === 'out' ? 'none' : '';
+    $('paidWrap').style.display = ''; $('entryProject').hidden = !D.venture || D.venture.kind !== 'web';
     $('entryDelete').style.visibility = id ? 'visible' : 'hidden'; $('entryDlg').showModal();
   }
-  $('entryForm').elements.type.onchange = function () { $('paidWrap').style.display = this.value === 'out' ? 'none' : ''; };
+  $('entryForm').elements.type.onchange = function () { $('paidWrap').style.display = ''; };
   $('addEntry').onclick = function () { editEntry(null); };
   $('entryForm').onsubmit = function (e) { e.preventDefault(); saveItem('ledger', this, $('entryDlg')); };
   $('entryDelete').onclick = function () { del('ledger', $('entryForm').elements.id.value, $('entryDlg')); };
@@ -545,7 +711,7 @@
       var w = window.open('', '_blank');
       api('invoice', { site: site.id, kind: inv.dataset.invoice }).then(function (r) {
         if (r.error) { if (w) w.close(); alert(r.error); return; }
-        if (w) w.location = '/admin/invoice.html?id=' + r.id;
+        if (w) w.location = '/admin/invoice.html?id=' + r.id + '&venture=' + encodeURIComponent(activeVenture);
         load();
       });
       return;
@@ -556,7 +722,7 @@
     if (t.dataset.editEntry) editEntry(t.dataset.editEntry);
     if (t.dataset.editRem) editRem(t.dataset.editRem);
     if (t.dataset.done) api('reminder-done', { id: t.dataset.done }).then(load);
-    if (t.dataset.paid) { var x = D.ledger.find(function (y) { return y.id === t.dataset.paid; }); x.paid = true; api('save', { collection: 'ledger', item: x }).then(load); }
+    if (t.dataset.paid) { var x = D.ledger.find(function (y) { return y.id === t.dataset.paid; }); x.paid = true; x.paidDate = TODAY; api('save', { collection: 'ledger', item: x }).then(function (r) { if (r.error) return alert(r.error); load(); }); }
     if (t.dataset.check) { t.disabled = true; t.textContent = 'Checking'; api('check', { id: t.dataset.check }).then(load); }
   });
   $('checkAll').onclick = function () {
@@ -565,21 +731,8 @@
     ids.reduce(function (p, id) { return p.then(function () { return api('check', { id: id }); }); }, Promise.resolve())
       .then(load).then(function () { b.disabled = false; b.textContent = 'Check all sites'; });
   };
-  $('fees').onclick = function () {
-    var month = TODAY.slice(0, 7);
-    api('monthly-fees', { month: month }).then(function (r) { alert(r.error || (r.added ? 'Added ' + r.added + ' monthly fee' + (r.added === 1 ? '' : 's') + ' as owed to you.' : 'This month\'s fees are already added, or no live sites have a monthly fee.')); load(); });
-  };
-  $('csv').onclick = function () {
-    var ty = +$('taxYear').value;
-    var rows = D.ledger.filter(function (x) { return taxYearOf(x.date) === ty; }).sort(function (a, b) { return a.date.localeCompare(b.date); });
-    var q = function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; };
-    var csv = ['Date,Type,Category,Website,Description,Amount,Paid'].concat(rows.map(function (x) {
-      return [x.date, x.type === 'in' ? 'Income' : 'Spending', x.category, siteName(x.site), x.description, (x.type === 'out' ? -x.amount : x.amount).toFixed(2), x.paid ? 'Yes' : 'No'].map(q).join(',');
-    })).join('\r\n');
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-    a.download = 'sunnymead-' + ty + '-' + String(ty + 1).slice(2) + '.csv'; a.click();
-  };
+  $('csv').onclick = exportBooks;
+
 
   function fillBiz() { if (D.business) fill($('bizForm'), D.business); }
   $('bizForm').onsubmit = function (e) {
