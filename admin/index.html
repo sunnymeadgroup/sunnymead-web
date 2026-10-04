@@ -129,6 +129,10 @@
 <main class="wrap">
   <form class="login" id="loginForm" style="display:none">
     <h1>Admin login</h1>
+    <div id="googleLogin" hidden style="margin-bottom:20px">
+      <div id="googleButton"></div>
+      <p class="muted" style="font-size:.85rem;margin-top:12px">Use your approved Google account, or sign in with your password below.</p>
+    </div>
     <label for="pw">Password</label>
     <input id="pw" type="password" autocomplete="current-password">
     <p class="err" id="loginErr"></p>
@@ -305,9 +309,46 @@
   function siteName(id) { var s = D.sites.find(function (x) { return x.id === id; }); return s ? s.name : ''; }
 
   // ----- login -----
+  var googleStarted = false;
+  function startGoogleLogin() {
+    if (googleStarted) return;
+    googleStarted = true;
+    api('auth-config').then(function (config) {
+      if (!config.googleEnabled) return;
+      var script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.onload = function () {
+        if (!window.google || !google.accounts) return;
+        google.accounts.id.initialize({
+          client_id: config.clientId,
+          nonce: config.nonce,
+          auto_select: false,
+          callback: function (response) {
+            $('loginErr').textContent = '';
+            api('google-login', { credential: response.credential }).then(function (r) {
+              if (r.error) {
+                $('loginErr').textContent = r.error;
+                googleStarted = false;
+                startGoogleLogin();
+              } else {
+                google.accounts.id.disableAutoSelect();
+                load();
+              }
+            }).catch(function () { $('loginErr').textContent = 'Could not sign in. Refresh the page and try again.'; });
+          }
+        });
+        $('googleLogin').hidden = false;
+        $('googleButton').textContent = '';
+        google.accounts.id.renderButton($('googleButton'), { type: 'standard', theme: 'outline', size: 'large', text: 'signin_with', shape: 'rectangular' });
+      };
+      script.onerror = function () { $('loginErr').textContent = 'Google sign-in could not load. Refresh the page or use your password.'; };
+      document.head.appendChild(script);
+    }).catch(function () { googleStarted = false; });
+  }
   function load() {
     return api('data').then(function (r) {
-      if (r._status === 401) { $('loginForm').style.display = ''; $('app').style.display = 'none'; $('logout').style.display = 'none'; return; }
+      if (r._status === 401) { $('loginForm').style.display = ''; $('app').style.display = 'none'; $('logout').style.display = 'none'; startGoogleLogin(); return; }
       if (r.error) { $('loginForm').style.display = ''; $('loginErr').textContent = r.error; return; }
       D = r; $('loginForm').style.display = 'none'; $('app').style.display = ''; $('logout').style.display = '';
       render();
