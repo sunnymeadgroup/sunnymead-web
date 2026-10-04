@@ -2,6 +2,8 @@
 // Needs, in the Pages project settings:
 //   KV binding   DB              (Settings > Bindings > KV namespace)
 //   Secret       ADMIN_PASSWORD  (Settings > Variables and Secrets)
+//   Variable     GOOGLE_CLIENT_ID (Google OAuth Web application client ID)
+//   Variable     ADMIN_GOOGLE_EMAILS (comma-separated allowed admin emails)
 
 const COLLECTIONS = ["sites", "ledger", "reminders"];
 const COOKIE = "sm_admin";
@@ -25,12 +27,74 @@ function safeEqual(a, b) {
   return r === 0;
 }
 
+const GOOGLE_NONCE_COOKIE = "sm_google_nonce";
+const allowedEmails = (env) => String(env.ADMIN_GOOGLE_EMAILS || "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+const googleEnabled = (env) => !!env.GOOGLE_CLIENT_ID && allowedEmails(env).length > 0;
+const sessionCookie = (token) => `${COOKIE}=${encodeURIComponent(token)}; Path=/; Max-Age=${DAYS_30}; HttpOnly; Secure; SameSite=Strict`;
+
+function readCookie(request, name) {
+  try {
+    const item = (request.headers.get("cookie") || "").split(";").map((s) => s.trim()).find((s) => s.startsWith(name + "="));
+    return item ? decodeURIComponent(item.slice(name.length + 1)) : "";
+  } catch { return ""; }
+}
+
+function decodeBase64Url(value) {
+  if (!/^[A-Za-z0-9_-]+$/.test(value)) throw new Error("Invalid encoding");
+  const raw = value.replace(/-/g, "+").replace(/_/g, "/");
+  return Uint8Array.from(atob(raw + "=".repeat((4 - raw.length % 4) % 4)), (c) => c.charCodeAt(0));
+}
+const decodeJson = (value) => JSON.parse(new TextDecoder().decode(decodeBase64Url(value)));
+const encodeEmail = (email) => btoa(email).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+
 async function loggedIn(request, env) {
-  const m = (request.headers.get("cookie") || "").match(new RegExp(`${COOKIE}=([^;]+)`));
-  if (!m || !env.ADMIN_PASSWORD) return false;
-  const [expires, sig] = decodeURIComponent(m[1]).split(".");
-  if (!expires || !sig || Date.now() / 1000 > Number(expires)) return false;
+  if (!env.ADMIN_PASSWORD) return false;
+  const parts = readCookie(request, COOKIE).split(".");
+  if (parts[0] === "google" && parts.length === 4) {
+    const [, expires, encodedEmail, sig] = parts;
+    if (!/^\d+$/.test(expires) || Date.now() / 1000 >= Number(expires)) return false;
+    try {
+      const email = new TextDecoder().decode(decodeBase64Url(encodedEmail));
+      return googleEnabled(env) && allowedEmails(env).includes(email) &&
+        safeEqual(sig, await hmac(env.ADMIN_PASSWORD, `google.${expires}.${encodedEmail}`));
+    } catch { return false; }
+  }
+  const [expires, sig] = parts;
+  if (parts.length !== 2 || !/^\d+$/.test(expires) || !sig || Date.now() / 1000 >= Number(expires)) return false;
   return safeEqual(sig, await hmac(env.ADMIN_PASSWORD, `admin.${expires}`));
+}
+
+// Google's rotating public keys are cached for the lifetime advertised by Google.
+let googleKeys = { keys: [], expires: 0 };
+async function verifyGoogleToken(token, clientId, nonce) {
+  if (typeof token !== "string" || token.length > 12000) throw new Error("Invalid token");
+  const parts = token.split(".");
+  if (parts.length !== 3) throw new Error("Invalid token");
+  const header = decodeJson(parts[0]);
+  const claims = decodeJson(parts[1]);
+  const now = Math.floor(Date.now() / 1000);
+  if (header.alg !== "RS256" || typeof header.kid !== "string" ||
+      !["accounts.google.com", "https://accounts.google.com"].includes(claims.iss) ||
+      claims.aud !== clientId || (claims.azp && claims.azp !== clientId) ||
+      !Number.isFinite(claims.exp) || claims.exp <= now ||
+      !Number.isFinite(claims.iat) || claims.iat > now + 60 ||
+      typeof claims.sub !== "string" || !claims.sub ||
+      claims.email_verified !== true || typeof claims.email !== "string" ||
+      claims.nonce !== nonce) throw new Error("Invalid token");
+  if (googleKeys.expires <= Date.now() || !googleKeys.keys.some((k) => k.kid === header.kid)) {
+    const response = await fetch("https://www.googleapis.com/oauth2/v3/certs", { signal: AbortSignal.timeout(10000) });
+    if (!response.ok) throw new Error("Google verification unavailable");
+    const data = await response.json();
+    if (!Array.isArray(data.keys)) throw new Error("Invalid Google keys");
+    const maxAge = Number((response.headers.get("cache-control") || "").match(/max-age=(\d+)/)?.[1] || 300);
+    googleKeys = { keys: data.keys, expires: Date.now() + Math.min(maxAge, 86400) * 1000 };
+  }
+  const jwk = googleKeys.keys.find((k) => k.kid === header.kid && k.kty === "RSA");
+  if (!jwk) throw new Error("Unknown Google key");
+  const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
+  const valid = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, decodeBase64Url(parts[2]), new TextEncoder().encode(parts[0] + "." + parts[1]));
+  if (!valid) throw new Error("Invalid signature");
+  return claims;
 }
 
 // ---------- data ----------
@@ -116,6 +180,44 @@ export async function onRequest({ request, env, params }) {
   const method = request.method;
   if (!env.DB) return json({ error: "The DB storage is not connected yet. Add a KV binding called DB in Cloudflare." }, 500);
   if (!env.ADMIN_PASSWORD) return json({ error: "Set ADMIN_PASSWORD in Cloudflare first." }, 500);
+
+  if (path === "/auth-config" && method === "GET") {
+    if (!googleEnabled(env)) return json({ googleEnabled: false });
+    const expires = Math.floor(Date.now() / 1000) + 600;
+    const challenge = `${expires}.${crypto.randomUUID()}`;
+    const nonce = `${challenge}.${await hmac(env.ADMIN_PASSWORD, "nonce." + challenge)}`;
+    return json({ googleEnabled: true, clientId: env.GOOGLE_CLIENT_ID, nonce }, 200, {
+      "set-cookie": `${GOOGLE_NONCE_COOKIE}=${nonce}; Path=/api; Max-Age=600; HttpOnly; Secure; SameSite=Strict`
+    });
+  }
+
+  if (path === "/google-login" && method === "POST") {
+    if (!googleEnabled(env)) return json({ error: "Google sign-in is not configured yet." }, 503);
+    if (request.headers.get("origin") !== new URL(request.url).origin ||
+        !(request.headers.get("content-type") || "").startsWith("application/json")) {
+      return json({ error: "Please sign in from the admin page." }, 403);
+    }
+    const nonce = readCookie(request, GOOGLE_NONCE_COOKIE);
+    const [expires, random, sig] = nonce.split(".");
+    if (!/^\d+$/.test(expires || "") || Number(expires) <= Date.now() / 1000 || !random || !sig ||
+        !safeEqual(sig, await hmac(env.ADMIN_PASSWORD, `nonce.${expires}.${random}`))) {
+      return json({ error: "Sign-in expired. Refresh the page and try again." }, 401);
+    }
+    const { credential } = await request.json().catch(() => ({}));
+    let claims;
+    try { claims = await verifyGoogleToken(credential, env.GOOGLE_CLIENT_ID, nonce); }
+    catch { return json({ error: "Could not verify Google sign-in. Refresh the page and try again." }, 401); }
+    const email = claims.email.trim().toLowerCase();
+    if (!allowedEmails(env).includes(email)) return json({ error: "This Google account does not have admin access." }, 403);
+    const sessionExpires = Math.floor(Date.now() / 1000) + DAYS_30;
+    const payload = `google.${sessionExpires}.${encodeEmail(email)}`;
+    const token = `${payload}.${await hmac(env.ADMIN_PASSWORD, payload)}`;
+    const headers = new Headers({ "set-cookie": sessionCookie(token) });
+    headers.append("set-cookie", `${GOOGLE_NONCE_COOKIE}=; Path=/api; Max-Age=0; HttpOnly; Secure; SameSite=Strict`);
+    headers.set("content-type", "application/json");
+    headers.set("cache-control", "no-store");
+    return new Response(JSON.stringify({ ok: true }), { headers });
+  }
 
   if (path === "/login" && method === "POST") {
     const { password } = await request.json().catch(() => ({}));
