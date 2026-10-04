@@ -8,6 +8,7 @@
 const COLLECTIONS = ["sites", "ledger", "reminders"];
 const COOKIE = "sm_admin";
 const DAYS_30 = 60 * 60 * 24 * 30;
+const sessionSecret = (env) => env.ADMIN_SESSION_SECRET || env.ADMIN_PASSWORD;
 
 const json = (data, status = 200, headers = {}) =>
   new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json", "cache-control": "no-store", ...headers } });
@@ -48,7 +49,7 @@ const decodeJson = (value) => JSON.parse(new TextDecoder().decode(decodeBase64Ur
 const encodeEmail = (email) => btoa(email).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
 async function loggedIn(request, env) {
-  if (!env.ADMIN_PASSWORD) return false;
+  if (!sessionSecret(env)) return false;
   const parts = readCookie(request, COOKIE).split(".");
   if (parts[0] === "google" && parts.length === 4) {
     const [, expires, encodedEmail, sig] = parts;
@@ -56,12 +57,10 @@ async function loggedIn(request, env) {
     try {
       const email = new TextDecoder().decode(decodeBase64Url(encodedEmail));
       return googleEnabled(env) && allowedEmails(env).includes(email) &&
-        safeEqual(sig, await hmac(env.ADMIN_PASSWORD, `google.${expires}.${encodedEmail}`));
+        safeEqual(sig, await hmac(sessionSecret(env), `google.${expires}.${encodedEmail}`));
     } catch { return false; }
   }
-  const [expires, sig] = parts;
-  if (parts.length !== 2 || !/^\d+$/.test(expires) || !sig || Date.now() / 1000 >= Number(expires)) return false;
-  return safeEqual(sig, await hmac(env.ADMIN_PASSWORD, `admin.${expires}`));
+  return false; // Password sessions are no longer accepted.
 }
 
 // Google's rotating public keys are cached for the lifetime advertised by Google.
@@ -119,18 +118,58 @@ async function load(env) {
   const data = await env.DB.get("data", "json");
   if (data) {
     data.invoices = data.invoices || [];
+    data.audit = data.audit || [];
     data.business = { name: "Sunnymead Web", email: "web@sunnymeadgroup.co.uk", payDays: 14, buildTerms: "£150 deposit to start, £150 when you are happy with the website.", nextNumber: 1, ...(data.business || {}) };
     return data;
   }
-  const seed = SEED();
+  const seed = env.VENTURE && env.VENTURE.id !== "sunnymead-web"
+    ? { sites: [], ledger: [], reminders: [], invoices: [], business: { name: env.VENTURE.name, email: "", legalName: "Sunnymead Group Ltd", payDays: 14, nextNumber: 1, invoicePrefix: env.VENTURE.prefix, buildTerms: "" }, created: new Date().toISOString().slice(0, 10) }
+    : SEED();
   await env.DB.put("data", JSON.stringify(seed));
   return seed;
 }
-const save = (env, data) => env.DB.put("data", JSON.stringify(data));
+async function save(env, data) {
+  const before = await env.DB.get("data", "json");
+  const audit = data.audit || [];
+  const changed = [];
+  for (const collection of ["ledger", "invoices", "sites", "reminders"]) {
+    const previous = new Map((before?.[collection] || []).map((r) => [r.id, r]));
+    for (const row of data[collection] || []) {
+      const old = previous.get(row.id);
+      if (JSON.stringify(old) !== JSON.stringify(row)) changed.push({ collection, id: row.id, before: old || null, after: row });
+      previous.delete(row.id);
+    }
+    for (const [id, row] of previous) changed.push({ collection, id, before: row, after: null });
+  }
+  if (JSON.stringify(before?.business) !== JSON.stringify(data.business)) changed.push({ collection: "settings", before: before?.business || null, after: data.business });
+  if (changed.length) audit.push({ at: new Date().toISOString(), actor: env.ACTOR || "Admin", changes: changed });
+  data.audit = audit;
+  await env.DB.put("data", JSON.stringify(data));
+}
+
+async function ventureRegistry(env) {
+  return await env.DB.get("books_ventures", "json") || {
+    company: { name: "Sunnymead Group Ltd", yearStart: "01-01", companyNumber: "", registeredAddress: "" },
+    ventures: [{ id: "sunnymead-web", name: "Sunnymead Web", prefix: "SW", status: "active", kind: "web" }]
+  };
+}
+function scopedEnv(env, venture) {
+  const storage = env.DB;
+  const key = venture.id === "sunnymead-web" ? "data" : "books:" + venture.id;
+  return { ...env, VENTURE: venture, DB: {
+    get: (_, format) => storage.get(key, format),
+    put: (_, value) => storage.put(key, value)
+  } };
+}
+
 
 const clean = (v, max = 500) => String(v ?? "").replace(/[\u0000-\u0008\u000b-\u001f]/g, " ").trim().slice(0, max);
 const num = (v) => { const n = Math.round(Number(v) * 100) / 100; return Number.isFinite(n) ? n : 0; };
-const date = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : "");
+const date = (v) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(v || "")) return "";
+  const parsed = new Date(v + "T12:00:00Z");
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === v ? v : "";
+};
 
 function tidy(collection, item) {
   const id = clean(item.id, 40) || crypto.randomUUID().slice(0, 8);
@@ -152,7 +191,12 @@ function tidy(collection, item) {
       type: item.type === "out" ? "out" : "in",
       amount: Math.abs(num(item.amount)), category: clean(item.category, 40) || "Other",
       site: clean(item.site, 40), description: clean(item.description, 300),
-      paid: item.type === "out" ? true : !!item.paid, ref: clean(item.ref, 60),
+      paid: !!item.paid, ref: clean(item.ref, 60),
+      counterparty: clean(item.counterparty, 120), account: clean(item.account, 80),
+      paidDate: date(item.paidDate), due: date(item.due), receipt: clean(item.receipt, 250),
+      reconciled: !!item.reconciled,
+      treatment: ["trading", "asset", "finance", "transfer"].includes(item.treatment) ? item.treatment : "trading",
+      vat: Math.max(0, Math.min(Math.abs(num(item.amount)), num(item.vat))),
     };
   }
   return {
@@ -179,13 +223,13 @@ export async function onRequest({ request, env, params }) {
   const path = "/" + [].concat(params.path || []).join("/");
   const method = request.method;
   if (!env.DB) return json({ error: "The DB storage is not connected yet. Add a KV binding called DB in Cloudflare." }, 500);
-  if (!env.ADMIN_PASSWORD) return json({ error: "Set ADMIN_PASSWORD in Cloudflare first." }, 500);
+  if (!sessionSecret(env)) return json({ error: "Set ADMIN_SESSION_SECRET in Cloudflare. The existing ADMIN_PASSWORD secret can also sign sessions." }, 500);
 
   if (path === "/auth-config" && method === "GET") {
     if (!googleEnabled(env)) return json({ googleEnabled: false });
     const expires = Math.floor(Date.now() / 1000) + 600;
     const challenge = `${expires}.${crypto.randomUUID()}`;
-    const nonce = `${challenge}.${await hmac(env.ADMIN_PASSWORD, "nonce." + challenge)}`;
+    const nonce = `${challenge}.${await hmac(sessionSecret(env), "nonce." + challenge)}`;
     return json({ googleEnabled: true, clientId: env.GOOGLE_CLIENT_ID, nonce }, 200, {
       "set-cookie": `${GOOGLE_NONCE_COOKIE}=${nonce}; Path=/api; Max-Age=600; HttpOnly; Secure; SameSite=Strict`
     });
@@ -200,7 +244,7 @@ export async function onRequest({ request, env, params }) {
     const nonce = readCookie(request, GOOGLE_NONCE_COOKIE);
     const [expires, random, sig] = nonce.split(".");
     if (!/^\d+$/.test(expires || "") || Number(expires) <= Date.now() / 1000 || !random || !sig ||
-        !safeEqual(sig, await hmac(env.ADMIN_PASSWORD, `nonce.${expires}.${random}`))) {
+        !safeEqual(sig, await hmac(sessionSecret(env), `nonce.${expires}.${random}`))) {
       return json({ error: "Sign-in expired. Refresh the page and try again." }, 401);
     }
     const { credential } = await request.json().catch(() => ({}));
@@ -211,7 +255,7 @@ export async function onRequest({ request, env, params }) {
     if (!allowedEmails(env).includes(email)) return json({ error: "This Google account does not have admin access." }, 403);
     const sessionExpires = Math.floor(Date.now() / 1000) + DAYS_30;
     const payload = `google.${sessionExpires}.${encodeEmail(email)}`;
-    const token = `${payload}.${await hmac(env.ADMIN_PASSWORD, payload)}`;
+    const token = `${payload}.${await hmac(sessionSecret(env), payload)}`;
     const headers = new Headers({ "set-cookie": sessionCookie(token) });
     headers.append("set-cookie", `${GOOGLE_NONCE_COOKIE}=; Path=/api; Max-Age=0; HttpOnly; Secure; SameSite=Strict`);
     headers.set("content-type", "application/json");
@@ -219,16 +263,7 @@ export async function onRequest({ request, env, params }) {
     return new Response(JSON.stringify({ ok: true }), { headers });
   }
 
-  if (path === "/login" && method === "POST") {
-    const { password } = await request.json().catch(() => ({}));
-    if (!safeEqual(String(password || ""), env.ADMIN_PASSWORD)) {
-      await new Promise((r) => setTimeout(r, 800)); // slow down guessing
-      return json({ error: "Wrong password" }, 401);
-    }
-    const expires = Math.floor(Date.now() / 1000) + DAYS_30;
-    const token = `${expires}.${await hmac(env.ADMIN_PASSWORD, `admin.${expires}`)}`;
-    return json({ ok: true }, 200, { "set-cookie": `${COOKIE}=${encodeURIComponent(token)}; Path=/; Max-Age=${DAYS_30}; HttpOnly; Secure; SameSite=Strict` });
-  }
+  if (path === "/login") return json({ error: "Use Google sign-in. Password login has been removed." }, 410);
 
   if (path === "/logout") {
     return json({ ok: true }, 200, { "set-cookie": `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict` });
@@ -236,14 +271,88 @@ export async function onRequest({ request, env, params }) {
 
   if (!(await loggedIn(request, env))) return json({ error: "Please log in" }, 401);
 
-  if (path === "/data" && method === "GET") return json(await load(env));
+  if (method === "POST" && (request.headers.get("origin") !== new URL(request.url).origin || !(request.headers.get("content-type") || "").startsWith("application/json"))) {
+    return json({ error: "Submit changes from the books page." }, 403);
+  }
+  const registry = await ventureRegistry(env);
+  if (path === "/ventures" && method === "GET") return json(registry);
+  if (path === "/ventures" && method === "POST") {
+    const input = await request.json().catch(() => ({}));
+    const name = clean(input.name, 100);
+    if (!name) return json({ error: "Enter a trading name." }, 400);
+    if (registry.ventures.some((v) => v.name.toLowerCase() === name.toLowerCase())) return json({ error: "That trading name already exists." }, 409);
+    const prefix = clean(input.prefix, 8).toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (!prefix || registry.ventures.some((v) => v.prefix === prefix)) return json({ error: "Choose a unique invoice prefix, for example MB." }, 400);
+    const venture = { id: crypto.randomUUID(), name, prefix, kind: "general", status: input.status === "planned" ? "planned" : "active" };
+    registry.ventures.push(venture);
+    await env.DB.put("books_ventures", JSON.stringify(registry));
+    return json({ ok: true, venture });
+  }
+  if (path === "/venture-status" && method === "POST") {
+    const input = await request.json().catch(() => ({}));
+    const selected = registry.ventures.find((v) => v.id === input.id);
+    if (!selected || !["active", "planned"].includes(input.status)) return json({ error: "Choose a trading name and status." }, 400);
+    selected.status = input.status;
+    await env.DB.put("books_ventures", JSON.stringify(registry));
+    return json({ ok: true });
+  }
+  if (path === "/company-settings" && method === "POST") {
+    const input = await request.json().catch(() => ({}));
+    if (!date("2000-" + input.yearStart)) return json({ error: "Enter a valid year start in MM-DD format." }, 400);
+    registry.company = { name: clean(input.name, 120) || "Sunnymead Group Ltd", companyNumber: clean(input.companyNumber, 30), registeredAddress: clean(input.registeredAddress, 300), yearStart: input.yearStart };
+    await env.DB.put("books_ventures", JSON.stringify(registry));
+    return json({ ok: true });
+  }
+  if (path === "/company-data" && method === "GET") {
+    const books = await Promise.all(registry.ventures.map(async (venture) => ({
+      venture, data: await load(scopedEnv(env, venture))
+    })));
+    return json({ ...registry, books });
+  }
+  const ventureId = new URL(request.url).searchParams.get("venture") || "sunnymead-web";
+  const venture = registry.ventures.find((v) => v.id === ventureId);
+  if (!venture) return json({ error: "Trading name not found." }, 404);
+  const actorParts = readCookie(request, COOKIE).split(".");
+  env = scopedEnv({ ...env, ACTOR: new TextDecoder().decode(decodeBase64Url(actorParts[2])) }, venture);
+
+  if (path === "/data" && method === "GET") {
+    const data = await load(env);
+    return json({ ...data, venture, company: registry.company });
+  }
+
+  if (path === "/invoice-create" && method === "POST") {
+    const input = await request.json().catch(() => ({}));
+    const customer = clean(input.customer, 120), description = clean(input.description, 500);
+    const amount = num(input.amount), issued = date(input.date), due = date(input.due);
+    if (!customer || !description || !(amount > 0) || !issued || !due || due < issued) return json({ error: "Add a customer, description, positive amount and valid invoice/due dates." }, 400);
+    const data = await load(env);
+    const next = Math.max(1, Number(data.business.nextNumber) || 1);
+    const number = venture.prefix + String(next).padStart(4, "0");
+    if (data.invoices.some((i) => i.number === number)) return json({ error: "This invoice number exists. Update the next number in Settings." }, 409);
+    data.business.nextNumber = next + 1;
+    const id = crypto.randomUUID(), ledgerId = crypto.randomUUID();
+    if (Number(input.vat || 0) < 0 || Number(input.vat || 0) > amount) return json({ error: "VAT included must be between zero and the invoice total." }, 400);
+    const vat = Math.max(0, Math.min(amount, num(input.vat)));
+    data.invoices.push({ id, number, kind: "general", site: "", customer, customerAddress: clean(input.customerAddress, 300), customerEmail: clean(input.customerEmail, 120), date: issued, due, lines: [{ desc: description, amount }], total: amount, vat, note: clean(input.note, 500), ledgerId,
+      issuer: { ...data.business, name: venture.name, legalName: registry.company.name, companyNumber: registry.company.companyNumber, registeredAddress: registry.company.registeredAddress } });
+    data.ledger.push(tidy("ledger", { id: ledgerId, date: issued, due, type: "in", amount, vat, counterparty: customer, description: "Invoice " + number + ": " + description, category: "Sales", paid: false, ref: "inv-" + id }));
+    await save(env, data);
+    return json({ ok: true, id, number });
+  }
 
   if (path === "/save" && method === "POST") {
     const { collection, item } = await request.json().catch(() => ({}));
     if (!COLLECTIONS.includes(collection) || !item) return json({ error: "Bad request" }, 400);
     const data = await load(env);
+    if (collection === "ledger" && (!date(item.date) || !(Number(item.amount) > 0))) return json({ error: "Enter a date and an amount greater than zero." }, 400);
     const row = tidy(collection, item);
+    if (collection === "ledger" && (row.vat > row.amount || Number(item.vat || 0) < 0 || Number(item.vat || 0) > row.amount)) return json({ error: "VAT included must be between zero and the gross amount." }, 400);
+    if (collection === "ledger" && row.reconciled && !row.paid) return json({ error: "Mark the transaction paid before matching it to a statement." }, 400);
     const i = data[collection].findIndex((x) => x.id === row.id);
+    if (collection === "ledger" && i >= 0 && data.invoices.some((inv) => inv.ledgerId === row.id)) {
+      const old = data.ledger[i];
+      if (row.amount !== old.amount || row.type !== old.type || row.date !== old.date || row.vat !== (old.vat || 0) || row.treatment !== (old.treatment || "trading")) return json({ error: "Invoice amounts and dates cannot be changed through an entry. Create a replacement invoice instead." }, 409);
+    }
     if (i >= 0) data[collection][i] = row; else data[collection].push(row);
     await save(env, data);
     return json({ ok: true, item: row });
@@ -253,6 +362,7 @@ export async function onRequest({ request, env, params }) {
     const { collection, id } = await request.json().catch(() => ({}));
     if (!COLLECTIONS.includes(collection)) return json({ error: "Bad request" }, 400);
     const data = await load(env);
+    if (collection === "ledger" && data.invoices.some((inv) => inv.ledgerId === id)) return json({ error: "This entry belongs to an invoice. Keep it with the invoice." }, 409);
     data[collection] = data[collection].filter((x) => x.id !== id);
     await save(env, data);
     return json({ ok: true });
@@ -270,22 +380,7 @@ export async function onRequest({ request, env, params }) {
     return json({ ok: true });
   }
 
-  // Add this month's maintenance fees as income (unpaid) for every live client site.
-  if (path === "/monthly-fees" && method === "POST") {
-    const { month } = await request.json().catch(() => ({}));
-    if (!/^\d{4}-\d{2}$/.test(month || "")) return json({ error: "Bad month" }, 400);
-    const data = await load(env);
-    let added = 0;
-    for (const s of data.sites) {
-      if (s.status !== "live" || s.own || !(s.monthly > 0)) continue;
-      const ref = `fee-${s.id}-${month}`;
-      if (data.ledger.some((x) => x.ref === ref)) continue;
-      data.ledger.push(tidy("ledger", { date: `${month}-01`, type: "in", amount: s.monthly, category: "Maintenance", site: s.id, description: `${s.name} monthly fee`, paid: false, ref }));
-      added++;
-    }
-    await save(env, data);
-    return json({ ok: true, added });
-  }
+  if (path === "/monthly-fees") return json({ error: "Create an invoice to record monthly income, so fees are not counted twice." }, 410);
 
   // ----- invoices -----
   // kind "build": invoice 1, the website build.
@@ -311,13 +406,14 @@ export async function onRequest({ request, env, params }) {
       lines = [{ desc: `Website hosting, care and updates: ${s.name}, ${prettyDate(periodFrom)} to ${prettyDate(periodTo)} (3 months at £${s.monthly} a month)`, amount: Math.round(s.monthly * 3 * 100) / 100 }];
     } else return json({ error: "Bad invoice type" }, 400);
     data.business.nextNumber = (data.business.nextNumber || 1);
-    const number = `SW${String(data.business.nextNumber).padStart(4, "0")}`;
+    const number = `${venture.prefix}${String(data.business.nextNumber).padStart(4, "0")}`;
+    if (data.invoices.some((i) => i.number === number)) return json({ error: "This invoice number already exists. Update the next number in Settings." }, 409);
     data.business.nextNumber++;
     const total = lines.reduce((a, l) => a + l.amount, 0);
     const id = crypto.randomUUID().slice(0, 8);
     const ledgerId = crypto.randomUUID().slice(0, 8);
     const due = addDays(today, Number(data.business.payDays || 14));
-    data.invoices.push({ id, number, site: s.id, kind, date: today, due, lines, total, periodFrom, periodTo, note, ledgerId });
+    data.invoices.push({ id, number, site: s.id, kind, date: today, due, lines, total, periodFrom, periodTo, note, ledgerId, issuer: { ...data.business, name: venture.name, legalName: registry.company.name, companyNumber: registry.company.companyNumber, registeredAddress: registry.company.registeredAddress } });
     data.ledger.push(tidy("ledger", { id: ledgerId, date: today, type: "in", amount: total, category: kind === "build" ? "Build" : "Maintenance", site: s.id, description: `Invoice ${number}: ${kind === "build" ? "website build" : "3 months care"}`, paid: false, ref: `inv-${id}` }));
     await save(env, data);
     return json({ ok: true, id, number });
