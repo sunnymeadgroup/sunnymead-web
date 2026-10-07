@@ -520,6 +520,39 @@
       dots.onclick = function (e) { var b = e.target.closest('button'); if (b) go(Array.prototype.indexOf.call(dots.children, b)); };
       track.addEventListener('scroll', function () { window.requestAnimationFrame(update); }, { passive: true });
       window.addEventListener('resize', update);
+      var slider = document.getElementById('slider');
+      var motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      var paused = motion.matches, hovered = false, focused = false, inView = false, timer;
+      var pauseButton = document.createElement('button');
+      pauseButton.type = 'button'; pauseButton.className = 'arrow';
+      pauseButton.style.width = 'auto'; pauseButton.style.borderRadius = '999px';
+      pauseButton.style.padding = '0 16px'; pauseButton.style.fontSize = '.85rem';
+      document.querySelector('.slider-nav').appendChild(pauseButton);
+      function currentIndex() {
+        return Math.min(slides.length - 1, Math.round(track.scrollLeft / (slides[0].offsetWidth + 18)));
+      }
+      function schedule() {
+        clearTimeout(timer);
+        if (paused || hovered || focused || !inView || document.hidden) return;
+        timer = setTimeout(function () { go((currentIndex() + 1) % slides.length); schedule(); }, 5000);
+      }
+      function setPauseLabel() {
+        pauseButton.textContent = paused ? 'Play' : 'Pause';
+        pauseButton.setAttribute('aria-label', paused ? 'Play automatic project scrolling' : 'Pause automatic project scrolling');
+      }
+      pauseButton.onclick = function () { paused = !paused; setPauseLabel(); schedule(); };
+      slider.addEventListener('mouseenter', function () { hovered = true; schedule(); });
+      slider.addEventListener('mouseleave', function () { hovered = false; schedule(); });
+      slider.addEventListener('focusin', function () { focused = true; schedule(); });
+      slider.addEventListener('focusout', function (event) { focused = slider.contains(event.relatedTarget); schedule(); });
+      slider.addEventListener('pointerdown', schedule, { passive: true });
+      slider.addEventListener('pointerup', schedule, { passive: true });
+      slider.addEventListener('click', schedule);
+      track.addEventListener('wheel', schedule, { passive: true });
+      document.addEventListener('visibilitychange', schedule);
+      motion.addEventListener('change', function () { paused = motion.matches; setPauseLabel(); schedule(); });
+      new IntersectionObserver(function (entries) { inView = entries[0].isIntersecting; schedule(); }, { threshold: .25 }).observe(slider);
+      setPauseLabel();
       update();
     })();
   </script>
