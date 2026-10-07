@@ -256,7 +256,7 @@ export async function onRequest({ request, env, params }) {
   if (path === "/projects" && method === "GET") {
     const data = await env.DB.get("data", "json");
     if (!data) return json({ error: "Projects are not available yet" }, 503);
-    const projects = (data.sites || []).filter((site) => !site.own && ["demo", "live"].includes(site.status))
+    const projects = (data.sites || []).filter((site) => (site.status === "demo" || (!site.own && site.status === "live")))
       .filter((site) => { try { return ["http:", "https:"].includes(new URL(site.url).protocol); } catch { return false; } })
       .map(({ id, name, url, status }) => ({ id, name, url, status }));
     return json({ projects });
