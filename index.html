@@ -66,7 +66,7 @@
     .hero { padding: 96px 0; }
     .hero p.lead { font-size: 1.25rem; color: var(--muted); max-width: 620px; }
 
-    /* Space scene behind the opening sections. */
+    /* Space scene behind the hero. */
     .space-scene { position: relative; isolation: isolate; overflow: hidden; background: #071224; color: #dce7f6; }
     .space-scene::before { content: ""; position: absolute; inset: 0; z-index: -2; background: radial-gradient(ellipse at 85% 15%, #23335d 0, transparent 48%), radial-gradient(ellipse at 10% 95%, #153e4a 0, transparent 50%); }
     .space-stars { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
@@ -203,20 +203,24 @@
     <div class="wrap">
       <h1>A proper website for your business.<br>Without the fuss.</h1>
       <p class="lead">
-        Simple, professional websites for small businesses in Newcastle and the North East.
+        New websites and website refreshes for small businesses in Newcastle and the North East.
         One fixed price to build, one small monthly fee to look after it. No jargon, no surprises.
       </p>
       <a class="btn" href="#contact">Get in touch</a>
     </div>
   </section>
 
+  <button class="space-toggle" id="spaceToggle" type="button" hidden>Pause stars</button>
+  </div>
+
   <!-- ===================== WHO IT'S FOR ===================== -->
   <section class="alt">
     <div class="wrap">
-      <h2>Made for businesses that don't have a website yet</h2>
+      <h2>Made for your first website or a fresh start</h2>
       <p>
-        Tradespeople, cafés, salons, DJs, cleaners, consultants. If customers are searching for you and
-        finding nothing, you're losing work. A clear, professional website gives them somewhere to find you.
+        Tradespeople, cafés, salons, DJs, cleaners, consultants. Whether you don't have a website yet or
+        your existing site needs a refresh, I can help. Give your business a clear, professional website
+        that shows what you do and makes it easy for customers to get in touch.
       </p>
       <div class="grid">
         <div class="card">
@@ -236,8 +240,6 @@
   </section>
 
   <!-- ===================== HOW IT WORKS ===================== -->
-  <button class="space-toggle" id="spaceToggle" type="button" hidden>Pause stars</button>
-  </div>
   <section id="how">
     <div class="wrap">
       <h2>How it works</h2>
