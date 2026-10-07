@@ -252,6 +252,15 @@ export async function onRequest({ request, env, params }) {
   const path = "/" + [].concat(params.path || []).join("/");
   const method = request.method;
   if (!env.DB) return json({ error: "The DB storage is not connected yet. Add a KV binding called DB in Cloudflare." }, 500);
+  // Only public presentation fields leave the admin data store.
+  if (path === "/projects" && method === "GET") {
+    const data = await env.DB.get("data", "json");
+    if (!data) return json({ error: "Projects are not available yet" }, 503);
+    const projects = (data.sites || []).filter((site) => !site.own && ["demo", "live"].includes(site.status))
+      .filter((site) => { try { return ["http:", "https:"].includes(new URL(site.url).protocol); } catch { return false; } })
+      .map(({ id, name, url, status }) => ({ id, name, url, status }));
+    return json({ projects });
+  }
   if (!sessionSecret(env)) return json({ error: "Set ADMIN_SESSION_SECRET in Cloudflare. The existing ADMIN_PASSWORD secret can also sign sessions." }, 500);
 
   if (path === "/auth-config" && method === "GET") {

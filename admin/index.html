@@ -94,7 +94,35 @@
     .in { color: var(--good); } .out { color: var(--bad); }
 
     /* projects table */
-    table.projects { min-width: 1000px; }
+    table.projects { min-width: 0; table-layout: fixed; }
+    table.projects th:nth-child(1) { width: 10%; }
+    table.projects th:nth-child(2) { width: 22%; }
+    table.projects th:nth-child(3) { width: 7%; }
+    table.projects th:nth-child(4) { width: 9%; }
+    table.projects th:nth-child(5) { width: 7%; }
+    table.projects th:nth-child(6) { width: 18%; }
+    table.projects th:nth-child(7) { width: 10%; }
+    table.projects th:nth-child(8) { width: 8%; }
+    table.projects th:nth-child(9) { width: 9%; }
+    table.projects th, table.projects td { overflow-wrap: anywhere; padding: 9px 6px; }
+    table.projects .project-sort { white-space: normal; text-align: inherit; }
+    table.projects .inv a, table.projects .inv .btn { white-space: normal; max-width: 100%; }
+    table.projects .btn.small { padding: 6px 8px; }
+    table.projects .acts-cell { white-space: normal; }
+    table.projects .acts-cell .btn { width: 100%; margin: 3px 0; }
+    @media (max-width: 700px) {
+      table.projects, table.projects tbody, table.projects tr, table.projects td { display: block; width: 100%; }
+      table.projects thead { display: flex; flex-wrap: wrap; padding: 8px; gap: 4px; }
+      table.projects thead tr { display: contents; }
+      table.projects thead th { display: block; width: auto; border: 0; }
+      table.projects thead th:last-child { display: none; }
+      table.projects tbody tr { padding: 12px; border-top: 1px solid var(--line); }
+      table.projects td { display: flex; gap: 10px; text-align: left; border: 0; padding: 6px !important; }
+      table.projects td::before { content: attr(data-label); flex: 0 0 90px; color: var(--muted); font-size: .8rem; }
+      table.projects td.pname { display: block; padding-left: 106px !important; }
+      table.projects td.pname::before { display: none; }
+      table.projects .acts-cell .btn { width: auto; }
+    }
     .project-sort { font:inherit; font-weight:600; color:inherit; padding:6px 0; background:none; border:0; cursor:pointer; white-space:nowrap; }
     .project-sort:hover { color:var(--navy); }
     .project-sort:focus-visible { outline:2px solid var(--sun); outline-offset:3px; border-radius:3px; }
@@ -658,16 +686,16 @@
         gbp(s.build) + '<span class="paidline">' + (s.depositPaid && s.balancePaid ? 'Paid in full' : s.depositPaid ? 'Deposit paid, balance due' : 'Deposit due') + '</span>';
       var renew = s.domainRenews ? fmtDate(s.domainRenews) + '<span class="paidline">' + dueChip(s.domainRenews) + '</span>' : (s.domain ? '<span class="muted" style="font-size:.85rem">Add date</span>' : '<span class="muted">None</span>');
       return '<tr>' +
-        '<td><b>' + esc('JOB-' + String(s.jobNumber || '').padStart(4, '0')) + '</b><small class="paidline">' + (s.createdAt ? 'Created ' + fmtDate(s.createdAt.slice(0, 10)) : 'Date not recorded') + '</small></td>' +
-        '<td class="pname"><b>' + esc(s.name) + '</b><small>' + esc(s.own ? 'Sunnymead' : s.client) + '</small>' +
+        '<td data-label="Job number"><b>' + esc('JOB-' + String(s.jobNumber || '').padStart(4, '0')) + '</b><small class="paidline">' + (s.createdAt ? 'Created ' + fmtDate(s.createdAt.slice(0, 10)) : 'Date not recorded') + '</small></td>' +
+        '<td class="pname" data-label="Project"><b>' + esc(s.name) + '</b><small>' + esc(s.own ? 'Sunnymead' : s.client) + '</small>' +
           (s.url ? '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.url.replace(/^https?:\/\//, '').replace(/\/$/, '')) + '</a>' : '') + '</td>' +
-        '<td><span class="chip ' + s.status + '">' + s.status[0].toUpperCase() + s.status.slice(1) + '</span>' + (s.liveSince ? '<span class="paidline">since ' + fmtDate(s.liveSince) + '</span>' : '') + '</td>' +
-        '<td>' + build + '</td>' +
-        '<td class="num">' + (s.own ? '' : gbp(s.monthly)) + '</td>' +
-        '<td>' + invCell(s) + '</td>' +
-        '<td>' + renew + '</td>' +
-        '<td>' + online + '</td>' +
-        '<td class="acts-cell"><button class="btn small ghost" data-check="' + s.id + '">Check</button> <button class="btn small ghost" data-edit-site="' + s.id + '">Edit</button></td>' +
+        '<td data-label="Status"><span class="chip ' + s.status + '">' + s.status[0].toUpperCase() + s.status.slice(1) + '</span>' + (s.liveSince ? '<span class="paidline">since ' + fmtDate(s.liveSince) + '</span>' : '') + '</td>' +
+        '<td data-label="Build">' + build + '</td>' +
+        '<td class="num" data-label="Monthly">' + (s.own ? '' : gbp(s.monthly)) + '</td>' +
+        '<td data-label="Invoices">' + invCell(s) + '</td>' +
+        '<td data-label="Domain renews">' + renew + '</td>' +
+        '<td data-label="Online">' + online + '</td>' +
+        '<td class="acts-cell" data-label="Actions"><button class="btn small ghost" data-check="' + s.id + '">Check</button> <button class="btn small ghost" data-edit-site="' + s.id + '">Edit</button></td>' +
         '</tr>';
     }).join('') || '<tr><td colspan="9" class="empty" style="padding:18px">No projects yet.</td></tr>';
   }
