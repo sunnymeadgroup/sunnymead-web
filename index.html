@@ -148,6 +148,7 @@
     .track .project { flex: 0 0 100%; scroll-snap-align: start; margin: 0 !important; }
     .track .project:hover { transform: none; }
     .slider-nav { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 18px; }
+    .slider-nav[hidden] { display: none; }
     .arrow { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); color: var(--navy); font-size: 1.2rem; cursor: pointer; transition: all 0.15s; }
     .arrow:hover:not(:disabled) { background: var(--navy); color: #fff; border-color: var(--navy); }
     .arrow:disabled { opacity: 0.35; cursor: default; }
@@ -243,41 +244,16 @@
   </section>
 
   <!-- ===================== PROJECTS ===================== -->
-  <!-- To add a project: copy one <a class="project"> block and change the link, picture and words. -->
+  <!-- Public projects follow the Demo/Live status saved in the admin. -->
   <section id="projects" class="alt">
     <div class="wrap">
       <h2>Projects</h2>
       <p>Recent work for local businesses.</p>
       <div class="slider" id="slider">
         <div class="track" id="track">
-      <a class="project" href="https://carrs-barber.sunnymeadgroup.workers.dev/" target="_blank" rel="noopener">
-        <img src="assets/carrs-barbers.jpg" alt="Carr's Barbers Club website" loading="lazy" width="960" height="600">
-        <div class="info">
-          <p class="tag">Barbers &middot; Jesmond, Newcastle</p>
-          <h3>Carr's Barbers Club</h3>
-          <ul>
-            <li>Online booking with each of the three barbers</li>
-            <li>Customer app for iPhone and Android</li>
-            <li>Barbers' diary with booking alerts</li>
-          </ul>
-          <span class="go">Visit the website &rarr;</span>
+          <p id="projectMessage" role="status">Loading projects…</p>
         </div>
-      </a>
-      <a class="project" href="https://gemini-aesthetics.sunnymeadgroup.workers.dev/" target="_blank" rel="noopener">
-        <img src="assets/gemini-aesthetics.jpg" alt="Gemini Aesthetics website" loading="lazy" width="960" height="600">
-        <div class="info">
-          <p class="tag">Aesthetics clinic &middot; Rowlands Gill, Gateshead</p>
-          <h3>Gemini Aesthetics</h3>
-          <ul>
-            <li>Treatment menu with online booking</li>
-            <li>Deposits taken when booking</li>
-            <li>Clinic diary, stats and app</li>
-          </ul>
-          <span class="go">Visit the website &rarr;</span>
-        </div>
-      </a>
-        </div>
-        <div class="slider-nav">
+        <div class="slider-nav" hidden>
           <button class="arrow" id="prevP" aria-label="Previous project">&larr;</button>
           <div class="dots" id="dots"></div>
           <button class="arrow" id="nextP" aria-label="Next project">&rarr;</button>
@@ -387,13 +363,77 @@
   </footer>
 
 
+  <template id="projectTemplates">
+      <a class="project" data-project-id="carrs" href="https://carrs-barber.sunnymeadgroup.workers.dev/" target="_blank" rel="noopener">
+        <img src="assets/carrs-barbers.jpg" alt="Carr's Barbers Club website" loading="lazy" width="960" height="600">
+        <div class="info">
+          <p class="tag">Barbers &middot; Jesmond, Newcastle</p>
+          <h3>Carr's Barbers Club</h3>
+          <ul>
+            <li>Online booking with each of the three barbers</li>
+            <li>Customer app for iPhone and Android</li>
+            <li>Barbers' diary with booking alerts</li>
+          </ul>
+          <span class="go">Visit the website &rarr;</span>
+        </div>
+      </a>
+      <a class="project" data-project-id="gemini" href="https://gemini-aesthetics.sunnymeadgroup.workers.dev/" target="_blank" rel="noopener">
+        <img src="assets/gemini-aesthetics.jpg" alt="Gemini Aesthetics website" loading="lazy" width="960" height="600">
+        <div class="info">
+          <p class="tag">Aesthetics clinic &middot; Rowlands Gill, Gateshead</p>
+          <h3>Gemini Aesthetics</h3>
+          <ul>
+            <li>Treatment menu with online booking</li>
+            <li>Deposits taken when booking</li>
+            <li>Clinic diary, stats and app</li>
+          </ul>
+          <span class="go">Visit the website &rarr;</span>
+        </div>
+      </a>
+  </template>
+
   <script>
     // Projects slider: arrows, dots and swipe
-    (function () {
+    (async function () {
       var track = document.getElementById('track'); if (!track) return;
+      var message = document.getElementById('projectMessage');
+      try {
+        var response = await fetch('/api/projects', { cache: 'no-store' });
+        if (!response.ok) throw new Error('Projects unavailable');
+        var data = await response.json();
+        if (!Array.isArray(data.projects)) throw new Error('Invalid projects');
+        var templates = document.getElementById('projectTemplates').content;
+        track.replaceChildren();
+        data.projects.forEach(function (project) {
+          var url; try { url = new URL(project.url); } catch (e) { return; }
+          if (!['http:', 'https:'].includes(url.protocol)) return;
+          if (!['demo', 'live'].includes(project.status)) return;
+          var template = Array.from(templates.querySelectorAll('.project')).find(function (card) { return card.dataset.projectId === project.id; });
+          var card = template ? template.cloneNode(true) : document.createElement('a');
+          card.className = 'project'; card.href = url.href; card.target = '_blank'; card.rel = 'noopener';
+          if (!template) {
+            var info = document.createElement('div'); info.className = 'info';
+            info.innerHTML = '<p class="tag"></p><h3></h3><span class="go"></span>';
+            card.appendChild(info); card.style.gridTemplateColumns = '1fr';
+          }
+          card.querySelector('h3').textContent = project.name;
+          var status = document.createElement('p'); status.className = 'tag';
+          status.textContent = project.status === 'demo' ? 'Demo project' : 'Live project';
+          card.querySelector('.info').prepend(status);
+          card.querySelector('.go').textContent = project.status === 'demo' ? 'View the demo →' : 'Visit the website →';
+          track.appendChild(card);
+        });
+        if (!track.children.length) {
+          message.textContent = 'New projects coming soon.'; track.appendChild(message);
+        }
+      } catch (error) {
+        message.textContent = 'Projects are temporarily unavailable. Please check back soon.';
+        return;
+      }
       var slides = track.querySelectorAll('.project'), dots = document.getElementById('dots');
       var prev = document.getElementById('prevP'), next = document.getElementById('nextP');
       if (slides.length < 2) { document.querySelector('.slider-nav').style.display = 'none'; return; }
+      document.querySelector('.slider-nav').hidden = false;
       dots.innerHTML = Array.prototype.map.call(slides, function (_, i) { return '<button aria-label="Project ' + (i + 1) + '"></button>'; }).join('');
       function index() { return Math.round(track.scrollLeft / track.clientWidth); }
       function go(i) { track.scrollTo({ left: i * (slides[0].offsetWidth + 18), behavior: 'smooth' }); }
