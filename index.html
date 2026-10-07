@@ -419,6 +419,19 @@
           <span class="go">Visit the website &rarr;</span>
         </div>
       </a>
+      <a class="project" data-project-id="murvs" href="https://murvs.sunnymeadgroup.co.uk/" target="_blank" rel="noopener" style="grid-template-columns: 1fr">
+        <div class="info">
+          <p class="tag">Mobile wedding bar &middot; Whitley Bay</p>
+          <h3>Murv’s Bar</h3>
+          <p>A warm, welcoming website for a husband-and-wife mobile bar, bringing classic cocktails and good company to wedding celebrations.</p>
+          <ul>
+            <li>Three wedding packages with clear pricing and inclusions</li>
+            <li>Easy-to-browse cocktail and drinks menu</li>
+            <li>Travel details, venue requirements and a simple enquiry route</li>
+          </ul>
+          <span class="go">Visit the website &rarr;</span>
+        </div>
+      </a>
   </template>
 
   <script>
@@ -484,7 +497,7 @@
           var url; try { url = new URL(project.url); } catch (e) { return; }
           if (!['http:', 'https:'].includes(url.protocol)) return;
           if (!['demo', 'live'].includes(project.status)) return;
-          var template = Array.from(templates.querySelectorAll('.project')).find(function (card) { return card.dataset.projectId === project.id; });
+          var template = Array.from(templates.querySelectorAll('.project')).find(function (card) { return card.dataset.projectId === project.id || card.getAttribute('href') === url.href; });
           var card = template ? template.cloneNode(true) : document.createElement('a');
           card.className = 'project'; card.href = url.href; card.target = '_blank'; card.rel = 'noopener';
           if (!template) {
