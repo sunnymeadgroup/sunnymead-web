@@ -493,10 +493,7 @@
             card.appendChild(info); card.style.gridTemplateColumns = '1fr';
           }
           card.querySelector('h3').textContent = project.name;
-          var status = document.createElement('p'); status.className = 'tag';
-          status.textContent = project.status === 'demo' ? 'Demo project' : 'Live project';
-          card.querySelector('.info').prepend(status);
-          card.querySelector('.go').textContent = project.status === 'demo' ? 'View the demo →' : 'Visit the website →';
+          card.querySelector('.go').textContent = 'Visit the website →';
           track.appendChild(card);
         });
         if (!track.children.length) {
