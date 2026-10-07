@@ -170,6 +170,11 @@
     footer { background: var(--navy); padding: 36px 0; color: #c7d2e0; font-size: 0.9rem; }
     footer .admin-link { display: inline-block; margin-top: 18px; padding: 4px 0; color: #a8b8cc; font-size: 0.75rem; text-decoration: none; }
     footer .admin-link:hover, footer .admin-link:focus-visible { color: #fff; text-decoration: underline; }
+    footer a { color: #c7d2e0; text-underline-offset: 3px; }
+    footer a:hover, footer a:focus-visible { color: #fff; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 18px 0; }
+    .footer-links a { font-size: .9rem; }
+    .footer-copyright { margin: 18px 0 0; font-size: .8rem; }
     footer img { height: 26px; width: auto; display: block; margin-bottom: 14px; }
 
     @media (max-width: 600px) {
@@ -373,7 +378,15 @@
   <footer>
     <div class="wrap">
       <img src="assets/logo-white.svg" alt="sunnymead.web">
-      Sunnymead Web is a trading name of Sunnymead Group Ltd &middot; Newcastle upon Tyne
+      <p>Sunnymead Web is a trading name of Sunnymead Group Ltd &middot; Newcastle upon Tyne</p>
+      <div class="footer-links" aria-label="Footer links">
+        <a href="/privacy.html">Privacy &amp; cookies</a>
+        <a href="/terms.html">Website terms</a>
+        <a href="#contact">Contact</a>
+        <a href="mailto:web@sunnymeadgroup.co.uk">web@sunnymeadgroup.co.uk</a>
+        <a href="https://wa.me/447936848378" target="_blank" rel="noopener">WhatsApp: 07936 848378</a>
+      </div>
+      <p class="footer-copyright">&copy; <span id="copyrightYear">2026</span> Sunnymead Group Ltd. All rights reserved.</p>
       <div><a class="admin-link" href="/admin/">Admin</a></div>
     </div>
   </footer>
@@ -409,6 +422,7 @@
   </template>
 
   <script>
+    document.getElementById('copyrightYear').textContent = new Date().getFullYear();
     // A lightweight star field; stops when paused, off-screen or in a hidden tab.
     (function () {
       var scene = document.getElementById('spaceScene'), canvas = document.getElementById('spaceStars');
