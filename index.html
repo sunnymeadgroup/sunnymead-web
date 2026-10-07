@@ -66,6 +66,20 @@
     .hero { padding: 96px 0; }
     .hero p.lead { font-size: 1.25rem; color: var(--muted); max-width: 620px; }
 
+    /* Space scene behind the opening sections. */
+    .space-scene { position: relative; isolation: isolate; overflow: hidden; background: #071224; color: #dce7f6; }
+    .space-scene::before { content: ""; position: absolute; inset: 0; z-index: -2; background: radial-gradient(ellipse at 85% 15%, #23335d 0, transparent 48%), radial-gradient(ellipse at 10% 95%, #153e4a 0, transparent 50%); }
+    .space-stars { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+    .space-scene section { position: relative; }
+    .space-scene h1, .space-scene h2 { color: #fff; }
+    .space-scene .hero p.lead { color: #c7d8ee; }
+    .space-scene .alt { background: rgba(5, 15, 30, .3); }
+    .space-scene .card { background: rgba(13, 30, 51, .94); border-color: #354965; color: #dce7f6; }
+    .space-scene .card h3 { color: #fff; }
+    .space-toggle { position: absolute; left: 20px; bottom: 14px; border: 1px solid #61748e; border-radius: 6px; padding: 6px 10px; background: #101f36; color: #dce7f6; font: inherit; font-size: .75rem; cursor: pointer; }
+    .space-toggle:hover { background: #233754; }
+    .space-toggle:focus-visible { outline: 2px solid var(--sun); outline-offset: 3px; }
+
     /* Grid cards */
     .grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
     .card {
@@ -183,6 +197,8 @@
   </header>
 
   <!-- ===================== HERO ===================== -->
+  <div class="space-scene" id="spaceScene">
+  <canvas class="space-stars" id="spaceStars" aria-hidden="true"></canvas>
   <section class="hero">
     <div class="wrap">
       <h1>A proper website for your business.<br>Without the fuss.</h1>
@@ -220,6 +236,8 @@
   </section>
 
   <!-- ===================== HOW IT WORKS ===================== -->
+  <button class="space-toggle" id="spaceToggle" type="button" hidden>Pause stars</button>
+  </div>
   <section id="how">
     <div class="wrap">
       <h2>How it works</h2>
@@ -393,6 +411,56 @@
   </template>
 
   <script>
+    // A lightweight star field; stops when paused, off-screen or in a hidden tab.
+    (function () {
+      var scene = document.getElementById('spaceScene'), canvas = document.getElementById('spaceStars');
+      var ctx = canvas.getContext('2d'); if (!ctx) return;
+      var toggle = document.getElementById('spaceToggle');
+      var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+      var paused = reduced.matches, visible = true, frame = 0, last = 0, elapsed = 0;
+      var width = 0, height = 0, stars = [];
+      var seed = 91;
+      function random() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+        stars.forEach(function (star) {
+          var x = (star.x * width + elapsed * star.speed) % width;
+          var alpha = .35 + .35 * (1 + Math.sin(elapsed * .7 + star.phase)) / 2;
+          ctx.beginPath(); ctx.arc(x, star.y * height, star.radius, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(' + star.color + ',' + alpha + ')'; ctx.fill();
+        });
+      }
+      function animate(now) {
+        if (last) elapsed += Math.min((now - last) / 1000, .1);
+        last = now; draw(); frame = requestAnimationFrame(animate);
+      }
+      function sync() {
+        if (frame) cancelAnimationFrame(frame);
+        frame = 0; last = 0;
+        toggle.textContent = paused ? 'Play stars' : 'Pause stars';
+        if (!paused && visible && !document.hidden) frame = requestAnimationFrame(animate);
+        else draw();
+      }
+      function resize() {
+        width = scene.clientWidth; height = scene.clientHeight;
+        var ratio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(width * ratio); canvas.height = Math.round(height * ratio);
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        seed = 91;
+        stars = Array.from({ length: Math.min(170, Math.max(45, Math.round(width * height / 6500))) }, function () {
+          return { x: random(), y: random(), radius: .5 + random() * 1.1, phase: random() * Math.PI * 2, speed: .7 + random() * 1.6, color: random() > .85 ? '255,207,143' : '213,229,255' };
+        });
+        draw();
+      }
+      toggle.hidden = false;
+      toggle.onclick = function () { paused = !paused; sync(); };
+      reduced.addEventListener('change', function () { paused = reduced.matches; sync(); });
+      document.addEventListener('visibilitychange', sync);
+      new ResizeObserver(resize).observe(scene);
+      new IntersectionObserver(function (entries) { visible = entries[0].isIntersecting; sync(); }).observe(scene);
+      resize(); sync();
+    })();
+
     // Projects slider: arrows, dots and swipe
     (async function () {
       var track = document.getElementById('track'); if (!track) return;
