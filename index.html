@@ -487,34 +487,7 @@
       resize(); sync();
     })();
 
-    // Load package prices saved through the admin page.
-    (async function () {
-      var cards = document.querySelectorAll('[data-price-plan]');
-      function money(value) { return '£' + value.toLocaleString('en-GB', { minimumFractionDigits: value % 1 ? 2 : 0, maximumFractionDigits: 2 }); }
-      try {
-        var response = await fetch('/api/pricing', { cache: 'no-store' });
-        if (!response.ok) throw new Error('Prices unavailable');
-        var data = await response.json();
-        // Validate every package before changing any displayed price.
-        cards.forEach(function (card) {
-          var plan = data.prices && data.prices[card.dataset.pricePlan];
-          if (!plan || !['setup', 'monthly'].every(function (field) { return typeof plan[field] === 'number' && Number.isFinite(plan[field]) && plan[field] >= 0 && plan[field] <= 999999.99; })) throw new Error('Invalid prices');
-        });
-        cards.forEach(function (card) {
-          var plan = data.prices[card.dataset.pricePlan], pennies = Math.round(plan.setup * 100), first = Math.floor(pennies / 2);
-          card.querySelector('[data-price="setup"]').textContent = money(plan.setup);
-          card.querySelector('[data-price="monthly"]').textContent = money(plan.monthly);
-          card.querySelector('.pay').textContent = money(first / 100) + ' to start, ' + money((pennies - first) / 100) + " when you're happy.";
-        });
-      } catch (error) {
-        cards.forEach(function (card) {
-          card.querySelector('[data-price="setup"]').textContent = 'Please enquire';
-          card.querySelector('.price small').hidden = true;
-          card.querySelector('.monthly').hidden = true;
-          card.querySelector('.pay').hidden = true;
-        });
-      }
-    })();
+    // Package prices are rendered on the server from the admin settings.
 
     // Projects slider: arrows, dots and swipe
     (async function () {

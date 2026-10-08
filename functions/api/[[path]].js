@@ -15,12 +15,12 @@ const json = (data, status = 200, headers = {}) =>
 
 // Public package prices are separate from customer invoices and bookkeeping.
 const PRICING_KEY = "website_pricing";
-const DEFAULT_PRICING = {
+export const DEFAULT_PRICING = {
   starter: { setup: 300, monthly: 30 },
   business: { setup: 500, monthly: 50 },
   plus: { setup: 750, monthly: 70 }
 };
-function validPricing(input) {
+export function validPricing(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) return null;
   const prices = {};
   for (const id of Object.keys(DEFAULT_PRICING)) {
