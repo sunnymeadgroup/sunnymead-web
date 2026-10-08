@@ -13,6 +13,30 @@ const sessionSecret = (env) => env.ADMIN_SESSION_SECRET || env.ADMIN_PASSWORD;
 const json = (data, status = 200, headers = {}) =>
   new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json", "cache-control": "no-store", ...headers } });
 
+// Public package prices are separate from customer invoices and bookkeeping.
+const PRICING_KEY = "website_pricing";
+const DEFAULT_PRICING = {
+  starter: { setup: 300, monthly: 30 },
+  business: { setup: 500, monthly: 50 },
+  plus: { setup: 800, monthly: 70 }
+};
+function validPricing(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return null;
+  const prices = {};
+  for (const id of Object.keys(DEFAULT_PRICING)) {
+    const plan = input[id];
+    if (!plan || typeof plan !== "object" || Array.isArray(plan)) return null;
+    prices[id] = {};
+    for (const field of ["setup", "monthly"]) {
+      const value = plan[field];
+      if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 999999.99 ||
+          Math.abs(value * 100 - Math.round(value * 100)) > 0.000001) return null;
+      prices[id][field] = Math.round(value * 100) / 100;
+    }
+  }
+  return prices;
+}
+
 // ---------- login ----------
 
 async function hmac(secret, text) {
@@ -252,6 +276,14 @@ export async function onRequest({ request, env, params }) {
   const path = "/" + [].concat(params.path || []).join("/");
   const method = request.method;
   if (!env.DB) return json({ error: "The DB storage is not connected yet. Add a KV binding called DB in Cloudflare." }, 500);
+  if (path === "/pricing" && method === "GET") {
+    try {
+      const stored = await env.DB.get(PRICING_KEY, "json");
+      const prices = stored === null ? DEFAULT_PRICING : validPricing(stored);
+      if (!prices) return json({ error: "Website prices are temporarily unavailable." }, 503);
+      return json({ prices });
+    } catch { return json({ error: "Could not load website prices." }, 503); }
+  }
   // Only public presentation fields leave the admin data store.
   if (path === "/projects" && method === "GET") {
     const data = await env.DB.get("data", "json");
@@ -311,6 +343,17 @@ export async function onRequest({ request, env, params }) {
 
   if (method === "POST" && (request.headers.get("origin") !== new URL(request.url).origin || !(request.headers.get("content-type") || "").startsWith("application/json"))) {
     return json({ error: "Submit changes from the books page." }, 403);
+  }
+  if (path === "/pricing" && method === "POST") {
+    const ventureId = new URL(request.url).searchParams.get("venture") || "sunnymead-web";
+    if (ventureId !== "sunnymead-web") return json({ error: "Select Sunnymead Web to edit website prices." }, 403);
+    const input = await request.json().catch(() => null);
+    const prices = validPricing(input && input.prices);
+    if (!prices) return json({ error: "Enter all six prices between £0 and £999,999.99, using no more than two decimal places." }, 400);
+    try {
+      await env.DB.put(PRICING_KEY, JSON.stringify(prices));
+      return json({ ok: true, prices });
+    } catch { return json({ error: "Could not save website prices. Please try again." }, 503); }
   }
   const registry = await ventureRegistry(env);
   if (path === "/ventures" && method === "GET") return json(registry);
@@ -514,3 +557,4 @@ export async function onRequest({ request, env, params }) {
 
   return json({ error: "Not found" }, 404);
 }
+

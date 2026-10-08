@@ -289,14 +289,14 @@
       <h2>Simple pricing</h2>
       <p>Three packages to suit your business. One fixed setup price, then a monthly plan to keep your website looked after.</p>
       <div class="grid">
-        <div class="card price-card">
+        <div class="card price-card" data-price-plan="starter">
           <div class="plan-intro">
             <h3>Starter</h3>
             <p>A professional website that helps customers find you.</p>
           </div>
           <div class="plan-prices">
-            <p class="price">£300 <small>setup</small></p>
-            <p class="price monthly">£30 <small>per month</small></p>
+            <p class="price"><span data-price="setup">£300</span> <small>setup</small></p>
+            <p class="price monthly"><span data-price="monthly">£30</span> <small>per month</small></p>
           </div>
           <ul>
             <li>Up to 3 pages with your branding</li>
@@ -308,15 +308,15 @@
           <p class="pay">£150 to start, £150 when you're happy.</p>
           <a class="btn" href="mailto:web@sunnymeadgroup.co.uk?subject=Starter%20website%20enquiry">Enquire about Starter</a>
         </div>
-        <div class="card price-card featured">
+        <div class="card price-card featured" data-price-plan="business">
           <span class="badge">Recommended</span>
           <div class="plan-intro">
             <h3>Business</h3>
             <p>Keep your website fresh with your own admin dashboard.</p>
           </div>
           <div class="plan-prices">
-            <p class="price">£500 <small>setup</small></p>
-            <p class="price monthly">£50 <small>per month</small></p>
+            <p class="price"><span data-price="setup">£500</span> <small>setup</small></p>
+            <p class="price monthly"><span data-price="monthly">£50</span> <small>per month</small></p>
           </div>
           <ul>
             <li>Everything in Starter, plus up to 5 pages</li>
@@ -328,14 +328,14 @@
           <p class="pay">£250 to start, £250 when you're happy.</p>
           <a class="btn" href="mailto:web@sunnymeadgroup.co.uk?subject=Business%20website%20enquiry">Enquire about Business</a>
         </div>
-        <div class="card price-card">
+        <div class="card price-card" data-price-plan="plus">
           <div class="plan-intro">
             <h3>Business Plus</h3>
             <p>Manage your website, statistics and PDF invoices.</p>
           </div>
           <div class="plan-prices">
-            <p class="price">£800 <small>setup</small></p>
-            <p class="price monthly">£70 <small>per month</small></p>
+            <p class="price"><span data-price="setup">£800</span> <small>setup</small></p>
+            <p class="price monthly"><span data-price="monthly">£70</span> <small>per month</small></p>
           </div>
           <ul>
             <li>Everything in Business</li>
@@ -497,6 +497,35 @@
       resize(); sync();
     })();
 
+    // Load package prices saved through the admin page.
+    (async function () {
+      var cards = document.querySelectorAll('[data-price-plan]');
+      function money(value) { return '£' + value.toLocaleString('en-GB', { minimumFractionDigits: value % 1 ? 2 : 0, maximumFractionDigits: 2 }); }
+      try {
+        var response = await fetch('/api/pricing', { cache: 'no-store' });
+        if (!response.ok) throw new Error('Prices unavailable');
+        var data = await response.json();
+        // Validate every package before changing any displayed price.
+        cards.forEach(function (card) {
+          var plan = data.prices && data.prices[card.dataset.pricePlan];
+          if (!plan || !['setup', 'monthly'].every(function (field) { return typeof plan[field] === 'number' && Number.isFinite(plan[field]) && plan[field] >= 0 && plan[field] <= 999999.99; })) throw new Error('Invalid prices');
+        });
+        cards.forEach(function (card) {
+          var plan = data.prices[card.dataset.pricePlan], pennies = Math.round(plan.setup * 100), first = Math.floor(pennies / 2);
+          card.querySelector('[data-price="setup"]').textContent = money(plan.setup);
+          card.querySelector('[data-price="monthly"]').textContent = money(plan.monthly);
+          card.querySelector('.pay').textContent = money(first / 100) + ' to start, ' + money((pennies - first) / 100) + " when you're happy.";
+        });
+      } catch (error) {
+        cards.forEach(function (card) {
+          card.querySelector('[data-price="setup"]').textContent = 'Please enquire';
+          card.querySelector('.price small').hidden = true;
+          card.querySelector('.monthly').hidden = true;
+          card.querySelector('.pay').hidden = true;
+        });
+      }
+    })();
+
     // Projects slider: arrows, dots and swipe
     (async function () {
       var track = document.getElementById('track'); if (!track) return;
@@ -575,3 +604,4 @@
   </script>
 </body>
 </html>
+

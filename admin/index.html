@@ -195,6 +195,7 @@
       <button data-tab="invoices">Invoices</button>
       <button data-tab="reports">Reports &amp; exports</button>
       <button data-tab="renewals">Renewals</button>
+      <button data-tab="pricing">Website pricing</button>
       <button data-tab="settings">Settings</button>
     </nav>
 
@@ -252,6 +253,19 @@
       <div class="panel" id="reportSummary"></div>
       <div class="bar"><button class="btn" id="reportCsv">Export transactions (CSV)</button><button class="btn ghost" id="backup">Download company backup (JSON)</button></div>
       <div class="panel"><h2>Record history</h2><p class="muted">Transaction, invoice, project, reminder and invoice-setting changes made after this update are recorded here.</p><div id="auditList"></div></div>
+    </section>
+    <section data-view="pricing" hidden>
+      <h1>Website pricing</h1>
+      <p class="muted">Edit the setup price and monthly fee shown on the main Sunnymead website. The two setup payments update automatically.</p>
+      <form class="panel" id="pricingForm" style="max-width:640px">
+        <fieldset id="pricingFields" disabled style="border:0;padding:0;margin:0">
+          <div id="pricingInputs"></div>
+          <button class="btn" type="submit">Save website prices</button>
+        </fieldset>
+        <p id="pricingMsg" role="status" aria-live="polite">Loading website prices…</p>
+        <button class="btn ghost" id="pricingRetry" type="button" hidden>Retry loading prices</button>
+        <p><a href="/#pricing" target="_blank" rel="noopener">View prices on the main website ↗</a></p>
+      </form>
     </section>
     <section data-view="settings" hidden>
       <h1>Trading name settings</h1>
@@ -430,6 +444,7 @@
     var web = activeVenture !== 'company' && D.venture.kind === 'web';
     document.querySelector('[data-tab="sites"]').hidden = !web;
     document.querySelector('[data-tab="settings"]').hidden = activeVenture === 'company';
+    document.querySelector('[data-tab="pricing"]').hidden = activeVenture !== 'sunnymead-web';
     $('addEntry').hidden = activeVenture === 'company';
     $('newInvoice').hidden = activeVenture === 'company';
     $('ventureStatus').value = D.venture.status || 'active';
@@ -563,10 +578,68 @@
       if (r.error) { $('loginForm').style.display = ''; $('loginErr').textContent = r.error; return; }
       D = r; $('loginForm').style.display = 'none'; $('app').style.display = ''; $('logout').style.display = '';
       renderWorkspace(); render();
+      if (activeVenture === 'sunnymead-web') loadPricing();
     }).catch(function () { $('appErr').textContent = 'Could not load your books. Refresh the page and try again.'; });
   }
   $('loginForm').onsubmit = function (e) { e.preventDefault(); };
   $('logout').onclick = function () { api('logout', {}).then(function () { location.reload(); }); };
+
+  // ----- public website prices -----
+  var pricingPlans = { starter: 'Starter', business: 'Business', plus: 'Business Plus' };
+  var pricingVersion = 0;
+  $('pricingInputs').innerHTML = Object.keys(pricingPlans).map(function (id) {
+    return '<h2>' + pricingPlans[id] + '</h2><div class="grid2">' +
+      '<div><label for="price-' + id + '-setup">Setup price (£)</label><input id="price-' + id + '-setup" type="number" min="0" max="999999.99" step="0.01" required></div>' +
+      '<div><label for="price-' + id + '-monthly">Monthly fee (£)</label><input id="price-' + id + '-monthly" type="number" min="0" max="999999.99" step="0.01" required></div></div>' +
+      '<p class="muted" id="price-' + id + '-split"></p>';
+  }).join('');
+  function showPricing(prices) {
+    Object.keys(pricingPlans).forEach(function (id) {
+      ['setup', 'monthly'].forEach(function (field) { $('price-' + id + '-' + field).value = prices[id][field]; });
+    });
+    pricingPreview();
+  }
+  function pricingPreview() {
+    Object.keys(pricingPlans).forEach(function (id) {
+      var input = $('price-' + id + '-setup'), pennies = Math.round(Number(input.value) * 100);
+      var first = Math.floor(pennies / 2);
+      $('price-' + id + '-split').textContent = input.value !== '' && input.validity.valid ? gbp(first / 100) + ' to start, ' + gbp((pennies - first) / 100) + " when you're happy." : '';
+    });
+  }
+  function loadPricing() {
+    var version = ++pricingVersion;
+    $('pricingFields').disabled = true; $('pricingRetry').hidden = true;
+    $('pricingMsg').textContent = 'Loading website prices…';
+    return api('pricing').then(function (r) {
+      if (version !== pricingVersion || activeVenture !== 'sunnymead-web') return;
+      if (r.error || !r.prices) throw new Error(r.error || 'Could not load website prices.');
+      showPricing(r.prices); $('pricingFields').disabled = false;
+      $('pricingMsg').textContent = '';
+    }).catch(function (err) {
+      if (version !== pricingVersion || activeVenture !== 'sunnymead-web') return;
+      $('pricingMsg').textContent = err.message || 'Could not load prices. Please retry.';
+      $('pricingRetry').hidden = false;
+    });
+  }
+  $('pricingRetry').onclick = loadPricing;
+  $('pricingForm').oninput = function () { pricingPreview(); $('pricingMsg').textContent = 'Unsaved changes.'; };
+  $('pricingForm').onsubmit = function (e) {
+    e.preventDefault();
+    if (activeVenture !== 'sunnymead-web' || $('pricingFields').disabled || !this.reportValidity()) return;
+    var prices = {}, version = ++pricingVersion;
+    Object.keys(pricingPlans).forEach(function (id) {
+      prices[id] = { setup: Number($('price-' + id + '-setup').value), monthly: Number($('price-' + id + '-monthly').value) };
+    });
+    $('pricingFields').disabled = true; $('pricingMsg').textContent = 'Saving website prices…';
+    api('pricing', { prices: prices }).then(function (r) {
+      if (r.error || !r.ok || !r.prices) throw new Error(r.error || 'Could not save prices.');
+      if (version !== pricingVersion || activeVenture !== 'sunnymead-web') return;
+      showPricing(r.prices);
+      $('pricingMsg').textContent = 'Saved. Refresh the main website to see your prices. Updates may take a short while to appear.';
+    }).catch(function (err) {
+      if (version === pricingVersion) $('pricingMsg').textContent = err.message || 'Could not save prices. Please try again.';
+    }).finally(function () { if (version === pricingVersion) $('pricingFields').disabled = false; });
+  };
 
   // ----- tabs -----
   $('tabs').onclick = function (e) {
@@ -826,3 +899,4 @@
 </script>
 </body>
 </html>
+
