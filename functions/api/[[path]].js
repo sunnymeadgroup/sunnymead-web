@@ -18,7 +18,7 @@ const PRICING_KEY = "website_pricing";
 const DEFAULT_PRICING = {
   starter: { setup: 300, monthly: 30 },
   business: { setup: 500, monthly: 50 },
-  plus: { setup: 800, monthly: 70 }
+  plus: { setup: 750, monthly: 70 }
 };
 function validPricing(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) return null;
