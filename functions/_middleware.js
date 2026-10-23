@@ -28,7 +28,7 @@ export async function onRequest(context) {
       rewriter = rewriter
         .on(selector + ' [data-price="setup"]', { element(el) { el.setInnerContent(money(plan.setup)); } })
         .on(selector + ' [data-price="monthly"]', { element(el) { el.setInnerContent(money(plan.monthly)); } })
-        .on(selector + ' .pay', { element(el) { el.setInnerContent(money(first / 100) + " to start, " + money((pennies - first) / 100) + " when you're happy."); } });
+        .on(selector + ' .pay', { element(el) { el.setInnerContent(id === "plus" ? "50% of the agreed setup price to start, balance after approval and before launch." : money(first / 100) + " to start, " + money((pennies - first) / 100) + " after approval and before launch."); } });
     } else {
       rewriter = rewriter
         .on(selector + ' [data-price="setup"]', { element(el) { el.setInnerContent("Please enquire"); } })
