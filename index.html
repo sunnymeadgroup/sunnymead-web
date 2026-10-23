@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sunnymead Web | Simple websites for small businesses</title>
-  <meta name="description" content="Professional websites for small businesses in the North East. From £300 setup and £30 a month, with editable websites, booking systems, phone apps and business tools.">
+  <meta name="description" content="Professional websites for small businesses across the UK, based in Newcastle upon Tyne. From £300 setup and £30 a month, with editable websites, booking systems, phone apps and business tools.">
   <link rel="icon" type="image/png" href="assets/favicon.png">
 
   <style>
@@ -177,9 +177,16 @@
 
     @media (max-width: 600px) {
       h1 { font-size: 1.9rem; }
-      nav { display: none; }
+      header .wrap { height: auto; min-height: 64px; flex-wrap: wrap; gap: 10px; padding-top: 12px; padding-bottom: 12px; }
+      nav { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+      nav a { margin-left: 0; font-size: .85rem; }
+      .contact-box .email { font-size: 1rem; overflow-wrap: anywhere; }
       .hero { padding: 64px 0; }
     }
+      details.card + details.card { margin-top: 12px; }
+    summary { cursor: pointer; font-weight: 600; color: var(--navy); }
+    details p { margin: 14px 0 0; }
+    section[id] { scroll-margin-top: 120px; }
   </style>
 </head>
 <body>
@@ -203,7 +210,7 @@
     <div class="wrap">
       <h1>A proper website for your business.<br>Without the fuss.</h1>
       <p class="lead">
-        New websites and website refreshes for small businesses in Newcastle and the North East.
+        New websites and website refreshes for small businesses across the UK. Based in Newcastle upon Tyne, working with you wherever you are.
         One fixed price to build, one small monthly fee to look after it. No jargon, no surprises.
       </p>
       <a class="btn" href="#contact">Get in touch</a>
@@ -250,8 +257,8 @@
         </div>
         <div class="card">
           <div class="num">2</div>
-          <h3>First draft in days</h3>
-          <p>I build a first version and send you a link. You tell me what to change.</p>
+          <h3>First draft within 3 days</h3>
+          <p>Within 3 days of receiving your deposit and all agreed content, I send you a first draft. You tell me what to change.</p>
         </div>
         <div class="card">
           <div class="num">3</div>
@@ -267,7 +274,7 @@
   <section id="projects" class="alt">
     <div class="wrap">
       <h2>Projects</h2>
-      <p>Recent work for local businesses.</p>
+      <p>Website examples. Demonstration concepts are labelled below.</p>
       <div class="slider" id="slider">
         <div class="track" id="track">
           <p id="projectMessage" role="status">Loading projects…</p>
@@ -290,26 +297,29 @@
         <div class="card price-card" data-price-plan="starter">
           <div class="plan-intro">
             <h3>Starter</h3>
-            <p>A simple website for your business.</p>
+            <p>A straightforward one-page website to help customers find and contact you.</p>
           </div>
           <div class="plan-prices">
             <p class="price"><span data-price="setup">£300</span> <small>setup</small></p>
             <p class="price monthly"><span data-price="monthly">£30</span> <small>per month</small></p>
           </div>
           <ul>
-            <li>Business information and contact details</li>
+            <li>One page with your services, photos and contact details</li>
+            <li>Two rounds of revisions before launch</li>
+            <li>You supply your text, logo and photos</li>
             <li>Edit your website text and photos</li>
             <li>Works on phones, tablets and computers</li>
             <li>Hosting and routine maintenance</li>
+            <li>Up to 30 minutes of minor edits or support each month</li>
           </ul>
-          <p class="pay">£150 to start, £150 when you're happy.</p>
+          <p class="pay">£150 to start, £150 after approval and before launch.</p>
           <a class="btn" href="mailto:web@sunnymeadgroup.co.uk?subject=Starter%20website%20enquiry">Enquire about Starter</a>
         </div>
         <div class="card price-card featured" data-price-plan="business">
           <span class="badge">Recommended</span>
           <div class="plan-intro">
             <h3>Business</h3>
-            <p>Take bookings and manage your business.</p>
+            <p>A business website with a standard online booking setup.</p>
           </div>
           <div class="plan-prices">
             <p class="price"><span data-price="setup">£500</span> <small>setup</small></p>
@@ -317,34 +327,46 @@
           </div>
           <ul>
             <li>Everything in Starter</li>
-            <li>Your own online booking system</li>
-            <li>Admin page to manage bookings</li>
-            <li>Manage services, prices and availability</li>
+            <li>Up to five website pages</li>
+            <li>One standard booking setup for agreed services</li>
+            <li>Manage bookings, services and availability</li>
+            <li>Booking subscriptions and payment fees charged separately where applicable</li>
           </ul>
-          <p class="pay">£250 to start, £250 when you're happy.</p>
+          <p class="pay">£250 to start, £250 after approval and before launch.</p>
           <a class="btn" href="mailto:web@sunnymeadgroup.co.uk?subject=Business%20website%20enquiry">Enquire about Business</a>
         </div>
         <div class="card price-card" data-price-plan="plus">
           <div class="plan-intro">
             <h3>Business Plus</h3>
-            <p>Apps and tools for your growing business.</p>
+            <p>Additional apps, logins and tools, scoped and quoted for your business.</p>
           </div>
           <div class="plan-prices">
-            <p class="price"><span data-price="setup">£750</span> <small>setup</small></p>
-            <p class="price monthly"><span data-price="monthly">£70</span> <small>per month</small></p>
+            <p class="price">From <span data-price="setup">£750</span> <small>setup</small></p>
+            <p class="price monthly">From <span data-price="monthly">£70</span> <small>per month</small></p>
           </div>
           <ul>
-            <li>Everything in Business</li>
-            <li>Installable phone apps</li>
-            <li>Multiple users with their own logins</li>
-            <li>Google login</li>
-            <li>Business statistics</li>
-            <li>Basic automation, such as booking emails</li>
+            <li>Business package as a starting point</li>
+            <li>Options include an installable web app, user logins, statistics or booking emails</li>
+            <li>Features, delivery time and support agreed in a written quote</li>
+            <li>Third-party subscriptions and usage fees quoted separately</li>
           </ul>
-          <p class="pay">£375 to start, £375 when you're happy.</p>
+          <p class="pay">50% of the agreed setup price to start, balance after approval and before launch.</p>
           <a class="btn" href="mailto:web@sunnymeadgroup.co.uk?subject=Business%20Plus%20website%20enquiry">Enquire about Business Plus</a>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Service details -->
+  <section id="faq" class="alt">
+    <div class="wrap">
+      <h2>A few useful details</h2>
+      <details class="card"><summary>What does the monthly fee cover?</summary><p>Hosting, routine maintenance and up to 30 minutes of minor edits or support each month. This allowance does not roll over. New pages, redesigns and extra features are quoted separately before work starts. Business Plus support is confirmed in your quote.</p></details>
+      <details class="card"><summary>Are there any other costs?</summary><p>Domain registration is separate. Any booking subscriptions, payment processing fees or other third-party costs will be explained in your quote before you agree to the work.</p></details>
+      <details class="card"><summary>How quickly can my website be ready?</summary><p>I send a first draft within 3 days of receiving your deposit and all agreed content. Your quote confirms the schedule. Two rounds of revisions are included; additional changes are quoted separately.</p></details>
+      <details class="card"><summary>Who owns the website and domain?</summary><p>You retain ownership of the content you supply. Once your setup invoice is paid, the finished website files created for your project are yours, subject to any third-party licences. Your domain should be registered in your name. Any platform or service dependencies will be explained in your quote.</p></details>
+      <details class="card"><summary>Can I cancel the monthly service?</summary><p>Monthly care is offered with no minimum term and 30 days’ written notice to cancel. Hosting and maintenance end when your paid service ends. Website files can be supplied for you to move elsewhere; migration work and third-party services are quoted separately. Your project agreement confirms the final terms.</p></details>
+      <details class="card"><summary>When can I expect a reply?</summary><p>I respond within 1 day. This service does not include round-the-clock or emergency support.</p></details>
     </div>
   </section>
 
@@ -353,7 +375,7 @@
     <div class="wrap">
       <h2>Get in touch</h2>
       <div class="contact-box">
-        <p>Send me a few lines about your business and I'll come back to you within 2 working days.</p>
+        <p>Send me a few lines about your business and I'll come back to you within 1 day.</p>
         <p class="email"><a href="mailto:web@sunnymeadgroup.co.uk">web@sunnymeadgroup.co.uk</a></p>
         <div class="contact-actions">
           <a class="btn btn-wa" href="https://wa.me/447936848378?text=Hi%2C%20I%27m%20interested%20in%20a%20website" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L4 21l1.6-4.4A8.5 8.5 0 1 1 21 12z"/><path d="M9.5 9.5c.3 2.4 2.1 4.2 4.5 4.5l1.2-1.2 2 .8v1.7c-3.9.4-8.4-4.1-8-8h1.7l.8 2z"/></svg> Message on WhatsApp</a>
@@ -368,7 +390,7 @@
   <footer>
     <div class="wrap">
       <img src="assets/logo-white.svg" alt="sunnymead.web">
-      <p>Sunnymead Web &middot; Newcastle upon Tyne</p>
+      <p>Sunnymead Web &middot; Based in Newcastle upon Tyne &middot; Serving businesses across the UK</p>
       <div class="footer-links" aria-label="Footer links">
         <a href="/privacy.html">Privacy &amp; cookies</a>
         <a href="/terms.html">Website terms</a>
@@ -513,6 +535,10 @@
             card.appendChild(info); card.style.gridTemplateColumns = '1fr';
           }
           card.querySelector('h3').textContent = project.name;
+          var statusLabel = document.createElement('p');
+          statusLabel.textContent = project.status === 'demo' ? 'Demonstration concept — not a commissioned client website' : 'Live website';
+          statusLabel.style.cssText = 'font-weight:600;font-size:.85rem;color:#0f2a4a';
+          card.querySelector('.info').prepend(statusLabel);
           card.querySelector('.go').textContent = 'Visit the website →';
           track.appendChild(card);
         });
